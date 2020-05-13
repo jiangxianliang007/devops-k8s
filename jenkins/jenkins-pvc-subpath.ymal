@@ -1,0 +1,12 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: nas-csi-pvc-jenkins
+  namespace: jenkins
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: alicloud-nas-subpath-jenkins
+  resources:
+    requests:
+      storage: 20Gi

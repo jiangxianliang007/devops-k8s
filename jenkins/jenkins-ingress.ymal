@@ -1,0 +1,19 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  namespace: jenkins
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/proxy-body-size: "18m"
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
+    
+  name: ingress-jenkins
+spec:
+  rules:
+  - host: jenkins.cryptape.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: jenkins
+          servicePort: 8080

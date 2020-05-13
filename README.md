@@ -1,6 +1,11 @@
 # devops-k8s
 Play k8s app
 
+### ingress-nginx
+kubectl apply -f ./ingress
+
+### jenkins
+kubectl apply -f ./jenkins
 
 ### EFK
 Elasticsearch、Fluentd 和 Kibana（EFK）技术栈

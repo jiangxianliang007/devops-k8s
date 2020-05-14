@@ -1,0 +1,15 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: alicloud-nas-fs
+mountOptions:
+- nolock,tcp,noresvport
+- vers=3
+parameters:
+  volumeAs: filesystem
+  zoneId: cn-zhangjiakou-c
+  vpcId: "vpc-8vb8ag3z4dy0gw0od9yl5f"
+  vSwitchId: "vsw-8vb57984j1z1nxbpp4u3m5"
+  deleteVolume: "true"
+provisioner: nasplugin.csi.alibabacloud.com
+reclaimPolicy: Delete

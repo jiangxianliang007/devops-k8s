@@ -91,3 +91,23 @@ kubectl apply -f kibana-deployment.yaml
 kubectl apply -f kibana-service.yaml
 kubectl apply -f kibana-ingress-yaml  
 ```
+
+### prometheus
+使用 coreos 的   [kube-prometheus](https://github.com/coreos/kube-prometheus)
+
+默认没有持久化，且只保留了30小时内的数据，自建一个 StorageClass 在 prometheus-prometheus.yaml 末尾增加存储配置
+
+```
+  retention: '90d'
+  storage:
+    volumeClaimTemplate:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+        storageClassName: alicloud-nas-subpath-prometheus
+```

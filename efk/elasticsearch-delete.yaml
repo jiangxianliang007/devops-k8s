@@ -1,0 +1,20 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: elasticsearch-delete-job
+  namespace: logging
+spec:
+  schedule: "0 1 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: elasticsearch-delete-job
+            image: centos
+            args:
+            - /bin/sh
+            - -c
+            - curl -XDELETE http://elasticsearch:9200/k8s-$(date +"%Y.%m.%d" -d "15 days ago")
+          restartPolicy: OnFailure
+

@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:  
+  name: cita-node1  
+  namespace: cita-chain
+spec:
+  serviceName: cita-node1
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cita-node1
+  template:
+    metadata:
+      labels:
+        app: cita-node1 
+        chain-name: test-chain
+    spec:  
+      containers:  
+      - name: cita    
+        image: cita/cita-release:20.2.0-secp256k1-sha3
+        ports:    
+        - containerPort: 4000
+        - containerPort: 1338
+        - containerPort: 4338
+        command:
+          - /bin/sh
+          - '-c'
+          - "cita bebop setup test-chain/1; sleep 10;cita bebop start test-chain/1;while true;do sleep 100;done"
+        volumeMounts:
+        - name: cita-run
+          subPath: test-chain/1
+          mountPath: /opt/cita-run/test-chain/1
+      volumes:
+      - name : cita-run
+        persistentVolumeClaim:
+          claimName: nas-csi-pvc-cita

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cita-node1-service
+  namespace: cita-chain
+spec:
+  selector:
+    app: cita-node1
+  ports:
+  - protocol: TCP
+    port: 4000
+    targetPort: 4000
+    name: cita-node1
+  type: ClusterIP

@@ -111,3 +111,28 @@ kubectl apply -f kibana-ingress-yaml
             storage: 10Gi
         storageClassName: alicloud-nas-subpath-prometheus
 ```
+
+### CITA
+[CITA](https://github.com/citahub/cita) 是一个高性能的企业级区块链内核
+ 
+使用官方提供的image: cita/cita-release:20.2.0-secp256k1-sha3，以下启动4个节点
+  
+```
+kubectl create namespace cita-chain
+kubectl apply -f cita/cita-storageclass-subpath.yaml
+kubectl apply -f cita/cita-pvc-subpath.yaml
+kubectl apply -f cita/cita-job-initchain.yaml
+kubectl apply -f cita/
+```
+在任意k8s集群node上执行，查看区块高度是否增长
+```
+curl -sX POST --data '{"jsonrpc":"2.0","method":"blockNumber","params":[],"id":83}' 127.0.0.1:31337 |jq
+{
+  "jsonrpc": "2.0",
+  "id": 83,
+  "result": "0xa99"
+}
+```
+
+#### 管理工具推荐：
+[kuboard](https://github.com/eip-work/kuboard-press) 和 [k9s ](https://github.com/derailed/k9s)

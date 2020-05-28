@@ -1,0 +1,12 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: nas-csi-pvc-cita
+  namespace: cita-chain
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: alicloud-nas-subpath-cita
+  resources:
+    requests:
+      storage: 20Gi

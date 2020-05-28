@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:  
+  name: create-chain 
+  namespace: cita-chain  
+spec:  
+  template:
+    metadata: 
+      name: create-chain
+    spec:
+      restartPolicy: OnFailure
+      containers:  
+      - name: cita    
+        image: cita/cita-release:20.2.0-secp256k1-sha3   
+        command:
+          - /bin/sh
+          - '-c'
+          - "cita bebop create  --super_admin \"0x4b5ae4567ad5d9fb92bc9afd6a657e6fa13a2523\" --nodes \"cita-node0-service:4000,cita-node1-service:4000,cita-node2-service:4000,cita-node3-service:4000\" --contract_arguments \"SysConfig.economicalModel=1\""
+        volumeMounts:
+        - name: cita-run
+          mountPath: /opt/cita-run
+      volumes:
+      - name : cita-run
+        persistentVolumeClaim:
+          claimName: nas-csi-pvc-cita

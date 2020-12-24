@@ -95,7 +95,7 @@ kubectl apply -f kibana-ingress-yaml
 ### prometheus
 使用 coreos 的   [kube-prometheus](https://github.com/coreos/kube-prometheus)
 
-默认没有持久化，且只保留了30小时内的数据，自建一个 StorageClass 在 prometheus-prometheus.yaml 末尾增加存储配置
+默认没有持久化，且只保留了24小时的数据，自建一个 StorageClass 在 prometheus-prometheus.yaml 末尾增加存储配置
 
 ```
   retention: '90d'
@@ -133,6 +133,9 @@ curl -sX POST --data '{"jsonrpc":"2.0","method":"blockNumber","params":[],"id":8
   "result": "0xa99"
 }
 ```
+
+### CKB
+[ckb](https://github.com/nervosnetwork/ckb) 部署在 AWS 的 EKS 上， 使用 ebs 做持久化。
 
 #### 管理工具推荐：
 [kuboard](https://github.com/eip-work/kuboard-press) 和 [k9s ](https://github.com/derailed/k9s)

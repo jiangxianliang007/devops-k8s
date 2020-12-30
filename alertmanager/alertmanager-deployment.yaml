@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: alertmanager      
+  name: alertmanager-main
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alertmanager
+  template:
+    metadata:
+      labels:
+        app: alertmanager
+    spec:
+      containers:
+      - name: alertmanager
+        image: quay.io/prometheus/alertmanager:v0.20.0
+        args:
+          - "--config.file=/etc/alertmanager/config/alertmanager.yaml"
+          - "--storage.path=/var/lib/alertmanager/"
+          - "--data.retention=120h"
+        ports:
+        - name: web
+          containerPort: 9093
+        volumeMounts:
+        - name: alertmanager-cm
+          mountPath: /etc/alertmanager/config
+        - name: alertmanager-data
+          mountPath: /var/lib/alertmanager/
+          subPath: alertmanager-data
+        - name: host-time
+          mountPath: /etc/localtime
+          readOnly: true
+      volumes:
+      - name: alertmanager-cm
+        configMap:
+          name: alertmanager-main-conf
+      - name: alertmanager-data
+        persistentVolumeClaim:
+          claimName: alert-pvc
+      - name: host-time
+        hostPath: 
+          path: /etc/localtime
+

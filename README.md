@@ -112,6 +112,8 @@ kubectl apply -f kibana-ingress-yaml
         storageClassName: alicloud-nas-subpath-prometheus
 ```
 
+kube-prometheus 默认部署的 alertmanager 自定义告警配置，试了N种方式都修改不了，单独部署alertmanager；
+
 ### CITA
 [CITA](https://github.com/citahub/cita) 是一个高性能的企业级区块链内核
  

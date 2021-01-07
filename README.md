@@ -139,5 +139,10 @@ curl -sX POST --data '{"jsonrpc":"2.0","method":"blockNumber","params":[],"id":8
 ### CKB
 [ckb](https://github.com/nervosnetwork/ckb) 部署在 AWS 的 EKS 上， 使用 ebs 做持久化。
 
+### bug bounty 
+创建、更新 configmap
+```
+kubectl create configmap nginx-conf-bug-bounty --from-file=./bug-bounty.conf --namespace=dev -o yaml --dry-run=client | kubectl apply -f -
+```
 #### 管理工具推荐：
 [kuboard](https://github.com/eip-work/kuboard-press) 和 [k9s ](https://github.com/derailed/k9s)

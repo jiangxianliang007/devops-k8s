@@ -1,0 +1,18 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  namespace: prod
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    
+  name: ingress-prod-udt
+spec:
+  rules:
+  - host: udt.ckbapp.dev
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: service-prod-udt
+          servicePort: 80
+

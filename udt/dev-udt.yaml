@@ -1,0 +1,45 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: service-dev-udt
+  namespace: dev
+spec:
+  selector:
+    app: dev-udt
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dev-udt
+  namespace: dev
+spec:
+  selector:
+    matchLabels:
+      app: dev-udt
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dev-udt
+    spec:
+      containers:
+        - name: dev-udt
+          image: public.ecr.aws/k9i5i2k0/ckb-udt:tag
+          imagePullPolicy: Always
+          ports:
+          - name: http
+            containerPort: 80
+          volumeMounts:
+          - name: dev-udt-conf
+            mountPath: /etc/nginx/conf.d/
+            readOnly: true
+      volumes:
+      - name: dev-udt-conf
+        configMap:
+          name: nginx-conf-udt
+
+

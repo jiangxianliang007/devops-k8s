@@ -1,0 +1,45 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: service-dev-bug-bounty
+  namespace: dev
+spec:
+  selector:
+    app: dev-bug-bounty
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dev-bug-bounty
+  namespace: dev
+spec:
+  selector:
+    matchLabels:
+      app: dev-bug-bounty
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dev-bug-bounty
+    spec:
+      containers:
+        - name: dev-bug-bounty
+          image: public.ecr.aws/k9i5i2k0/bug-bounty:tag
+          imagePullPolicy: Always
+          ports:
+          - name: http
+            containerPort: 80
+          volumeMounts:
+          - name: dev-bug-bounty-conf
+            mountPath: /etc/nginx/conf.d/
+            readOnly: true
+      volumes:
+      - name: dev-bug-bounty-conf
+        configMap:
+          name: nginx-conf-bug-bounty
+
+

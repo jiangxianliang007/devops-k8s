@@ -1,0 +1,44 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: service-prod-bug-bounty
+  namespace: prod
+spec:
+  selector:
+    app: prod-bug-bounty
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prod-bug-bounty
+  namespace: prod
+spec:
+  selector:
+    matchLabels:
+      app: prod-bug-bounty
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: prod-bug-bounty
+    spec:
+      containers:
+        - name: prod-bug-bounty
+          image: public.ecr.aws/k9i5i2k0/bug-bounty:tag
+          ports:
+          - name: http
+            containerPort: 80
+          volumeMounts:
+          - name: prod-bug-bounty-conf
+            mountPath: /etc/nginx/conf.d/
+            readOnly: true
+      volumes:
+      - name: prod-bug-bounty-conf
+        configMap:
+          name: nginx-conf-bug-bounty
+
+

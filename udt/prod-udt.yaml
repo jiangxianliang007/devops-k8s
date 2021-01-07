@@ -1,0 +1,44 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: service-prod-udt
+  namespace: prod
+spec:
+  selector:
+    app: prod-udt
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prod-udt
+  namespace: prod
+spec:
+  selector:
+    matchLabels:
+      app: prod-udt
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: prod-udt
+    spec:
+      containers:
+        - name: prod-udt
+          image: public.ecr.aws/k9i5i2k0/ckb-udt:tag
+          ports:
+          - name: http
+            containerPort: 80
+          volumeMounts:
+          - name: prod-udt-conf
+            mountPath: /etc/nginx/conf.d/
+            readOnly: true
+      volumes:
+      - name: prod-udt-conf
+        configMap:
+          name: nginx-conf-udt
+
+

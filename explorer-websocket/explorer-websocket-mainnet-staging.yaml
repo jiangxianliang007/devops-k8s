@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: explorer-websocket-mainnet-staging
+  namespace: staging
+spec:
+  selector:
+    matchLabels:
+      app: explorer-websocket-mainnet-staging
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: explorer-websocket-mainnet-staging
+    spec:
+      containers:
+        - name: explorer-websocket-mainnet-staging
+          image: public.ecr.aws/k9i5i2k0/explorer-websocket:8a294dd
+          volumeMounts:
+          - name: explorer-websocket-mainnet-staging-conf
+            mountPath: /opt/configs/
+            readOnly: true
+          - name: explorer-websocket-mainnet-staging-data
+            mountPath: /opt/storage
+            subPath: explorer-websocket-mainnet-staging
+      volumes:
+      - name: explorer-websocket-mainnet-staging-conf
+        configMap:
+          name: explorer-websocket-mainnet-config
+      - name: explorer-websocket-mainnet-staging-data
+        persistentVolumeClaim:
+          claimName: ckb-mainnet-staging-pvc

@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: explorer-websocket-testnet-staging
+  namespace: staging
+spec:
+  selector:
+    matchLabels:
+      app: explorer-websocket-testnet-staging
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: explorer-websocket-testnet-staging
+    spec:
+      containers:
+        - name: explorer-websocket-testnet-staging
+          image: public.ecr.aws/k9i5i2k0/explorer-websocket:tag
+          volumeMounts:
+          - name: explorer-websocket-testnet-staging-conf
+            mountPath: /opt/configs/
+            readOnly: true
+      volumes:
+      - name: explorer-websocket-testnet-staging-conf
+        configMap:
+          name: explorer-websocket-testnet-config
+
+

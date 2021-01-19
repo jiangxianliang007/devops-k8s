@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: explorer-websocket-testnet-prod
+  namespace: prod
+spec:
+  selector:
+    matchLabels:
+      app: explorer-websocket-testnet-prod
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: explorer-websocket-testnet-prod
+    spec:
+      containers:
+        - name: explorer-websocket-testnet-prod
+          image: public.ecr.aws/k9i5i2k0/explorer-websocket:tag
+          volumeMounts:
+          - name: explorer-websocket-testnet-prod-conf
+            mountPath: /opt/configs/
+            readOnly: true
+      volumes:
+      - name: explorer-websocket-testnet-prod-conf
+        configMap:
+          name: explorer-websocket-testnet-config
+
+

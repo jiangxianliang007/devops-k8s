@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ckb-mainnet-prod
+  namespace: prod
+spec:
+  selector:
+    matchLabels:
+      app: ckb-mainnet-prod
+  serviceName: "ckb-mainnet-prod"
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: ckb-mainnet-prod
+        #logging: "true"
+    spec:
+      securityContext:
+        runAsUser: 0
+      containers:
+      - name: ckb-mainnet-prod
+        image: "jiangxianliang/ckb-mini:v0.38.1"
+        command:
+        - bash
+        - "-c"
+        - |
+          set -ex
+          cd /var/lib/ckb
+          #ckb init --chain mainnet --force
+          ckb run
+        ports:
+          - name: rpc
+            containerPort: 8114
+            protocol: "TCP"
+          - name: websocket
+            containerPort: 28114
+            protocol: "TCP"
+        volumeMounts:
+          - name: data
+            mountPath: /var/lib/ckb
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: gp2
+      resources:
+        requests:
+          storage: 100Gi

@@ -1,0 +1,27 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  namespace: ckb-dex
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    
+  name: ingress-dex-ui
+spec:
+  rules:
+  - host: gliadex.ckbapp.dev
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: dex-ui-svc
+          servicePort: 80
+
+  - host: gliaswap.ckbapp.dev
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: dex-ui-svc
+          servicePort: 80
+
+

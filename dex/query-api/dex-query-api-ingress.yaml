@@ -1,0 +1,25 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  namespace: ckb-dex
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    
+  name: dex-query-api-ingress
+spec:
+  rules:
+  - host: api-gliadex.ckbapp.dev
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: dex-query-api-svc
+          servicePort: 80
+  - host: api-gliaswap.ckbapp.dev
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: dex-query-api-svc
+          servicePort: 80
+

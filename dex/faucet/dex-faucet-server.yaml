@@ -1,0 +1,45 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: dex-faucet-server-svc
+  namespace: ckb-dex
+spec:
+  selector:
+    app: dex-faucet-server
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 3089
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dex-faucet-server
+  namespace: ckb-dex
+spec:
+  selector:
+    matchLabels:
+      app: dex-faucet-server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dex-faucet-server
+    spec:
+      containers:
+        - name: dex-faucet-server
+          image: public.ecr.aws/k9i5i2k0/dex:faucet-server-97b64c2
+          ports:
+          - name: http
+            containerPort: 3089
+          volumeMounts:
+          - name: dex-faucet-server-conf
+            mountPath: /usr/app/.env
+            subPath: .env
+            readOnly: true
+      volumes:
+      - name: dex-faucet-server-conf
+        configMap:
+          name: dex-faucet-server-env
+
+

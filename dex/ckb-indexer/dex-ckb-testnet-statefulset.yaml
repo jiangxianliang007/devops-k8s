@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: dex-ckb-testnet
+  namespace: ckb-dex
+spec:
+  selector:
+    matchLabels:
+      app: dex-ckb-testnet
+  serviceName: "ckb-testnet"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dex-ckb-testnet
+        #logging: "true"
+    spec:
+      securityContext:
+        runAsUser: 0
+      containers:
+      - name: dex-ckb-testnet
+        image: "nervos/perkins-tent:v0.39.1"
+        env:
+        - name: CKB_NETWORK
+          value: testnet
+        ports:
+          - name: rpc
+            containerPort: 9115
+            protocol: "TCP"
+          - name: websocket
+            containerPort: 28114
+            protocol: "TCP"
+        volumeMounts:
+          - name: dex-ckb-data
+            mountPath: /data
+            subPath: dex-ckb-testnet
+      volumes:
+      - name: dex-ckb-data
+        persistentVolumeClaim:
+          claimName: dex-ckb-testnet-pvc
+
+

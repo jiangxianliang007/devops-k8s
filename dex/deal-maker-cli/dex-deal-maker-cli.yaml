@@ -1,0 +1,67 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: dex-deal-maker-cli-svc
+  namespace: ckb-dex
+spec:
+  selector:
+    app: dex-deal-maker-cli
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 3099
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: dex-deal-maker-cli
+  namespace: ckb-dex
+spec:
+  selector:
+    matchLabels:
+      app: dex-deal-maker-cli
+  serviceName: "dex-deal-maker-cli"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dex-deal-maker-cli
+    spec:
+      initContainers:
+        - name: init-deal-maker-cli
+          image: public.ecr.aws/k9i5i2k0/dex:deal-maker-cli-3af61b7
+          command:
+          - bash
+          - "-c"
+          - |
+            set -ex
+            npm run init
+            node lib/cli run
+          volumeMounts:
+          - name: indexer-data
+            mountPath: /usr/app/.db
+            subPath: dex-deal-maker-cli
+      containers:
+        - name: dex-deal-maker-cli
+          image: public.ecr.aws/k9i5i2k0/dex:deal-maker-cli-3af61b7
+          ports:
+          - name: http
+            containerPort: 3099
+          volumeMounts:
+          - name: dex-deal-maker-cli-conf
+            mountPath: /usr/app/.env
+            subPath: .env
+            readOnly: true
+          - name: indexer-data
+            mountPath: /usr/app/.db
+            subPath: dex-deal-maker-cli
+      volumes:
+      - name: dex-deal-maker-cli-conf
+        configMap:
+          name: dex-deal-maker-cli-env
+      - name: indexer-data
+        persistentVolumeClaim:
+          claimName: dex-ckb-testnet-pvc
+
+
+

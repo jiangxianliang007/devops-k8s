@@ -1,0 +1,53 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: dex-query-api-svc
+  namespace: ckb-dex
+spec:
+  selector:
+    app: dex-query-api
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: dex-query-api
+  namespace: ckb-dex
+spec:
+  selector:
+    matchLabels:
+      app: dex-query-api
+  serviceName: "dex-query-api"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dex-query-api
+    spec:
+      containers:
+        - name: dex-query-api
+          image: public.ecr.aws/k9i5i2k0/dex:query-api
+          ports:
+          - name: http
+            containerPort: 8080
+          volumeMounts:
+          - name: dex-query-api-conf
+            mountPath: /app/.env
+            subPath: .env
+            readOnly: true
+          - name: indexer-data
+            mountPath: /app/indexer_data
+            subPath: dex-query-api
+      volumes:
+      - name: dex-query-api-conf
+        configMap:
+          name: dex-query-api-env
+      - name: indexer-data
+        persistentVolumeClaim:
+          claimName: dex-ckb-testnet-pvc
+
+
+

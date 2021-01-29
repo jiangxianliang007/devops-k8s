@@ -1,0 +1,44 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: dex-ui-svc
+  namespace: ckb-dex
+spec:
+  selector:
+    app: dex-ui
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dex-ui
+  namespace: ckb-dex
+spec:
+  selector:
+    matchLabels:
+      app: dex-ui
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dex-ui
+    spec:
+      containers:
+        - name: dex-ui
+          image: public.ecr.aws/k9i5i2k0/dex:tag
+          ports:
+          - name: http
+            containerPort: 80
+          volumeMounts:
+          - name: dex-ui-conf
+            mountPath: /etc/nginx/conf.d/
+            readOnly: true
+      volumes:
+      - name: dex-ui-conf
+        configMap:
+          name: dex-ui-conf
+
+

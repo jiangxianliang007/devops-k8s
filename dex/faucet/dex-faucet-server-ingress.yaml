@@ -1,0 +1,18 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  namespace: ckb-dex
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    
+  name: dex-faucet-server-ingress
+spec:
+  rules:
+  - host: api-gliaswap-faucet.ckbapp.dev
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: dex-faucet-server-svc
+          servicePort: 80
+

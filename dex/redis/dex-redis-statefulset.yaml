@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: dex-redis
+  namespace: ckb-dex
+spec:
+  serviceName: dex-redis
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dex-redis
+  template:
+    metadata:
+      labels:
+        app: dex-redis
+    spec:
+      containers:
+      - name: dex-redis
+        image: jiangxianliang/redis:5.0.7
+        ports:
+        - containerPort: 6379
+        resources:
+          limits:
+            cpu: 1
+            memory: 1Gi
+          requests:
+            cpu: 0.5
+            memory: 500Mi
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+      volumes:
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: dex-redis-pv-claim

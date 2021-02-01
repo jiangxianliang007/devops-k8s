@@ -25,10 +25,11 @@ spec:
     metadata:
       labels:
         app: dex-ui
+        logging: "true"
     spec:
       containers:
         - name: dex-ui
-          image: public.ecr.aws/k9i5i2k0/dex:tag
+          image: public.ecr.aws/k9i5i2k0/dex:ui-8dee5c1
           ports:
           - name: http
             containerPort: 80

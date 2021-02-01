@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: dex-api-ckb-testnet
+  namespace: ckb-dex
+spec:
+  selector:
+    matchLabels:
+      app: dex-api-ckb-testnet
+  serviceName: "ckb-testnet"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dex-api-ckb-testnet
+        #logging: "true"
+    spec:
+      securityContext:
+        runAsUser: 0
+      containers:
+      - name: dex-api-ckb-testnet
+        image: "jiangxianliang/ckb-mini:v0.39.1"
+        command:
+        - bash
+        - "-c"
+        - |
+          set -ex
+          cd /var/lib/ckb
+          #ckb init --chain testnet --force
+          ckb run
+        ports:
+          - name: rpc
+            containerPort: 8114
+            protocol: "TCP"
+          - name: websocket
+            containerPort: 28114
+            protocol: "TCP"
+        volumeMounts:
+          - name: ckb-data
+            mountPath: /var/lib/ckb
+            subPath: dex-api-ckb-testnet
+      volumes:
+      - name: ckb-data
+        persistentVolumeClaim:
+          claimName: dex-ckb-testnet-pvc
+
+
+

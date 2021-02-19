@@ -1,0 +1,47 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: dex-force-server-svc
+  namespace: ckb-dex
+spec:
+  selector:
+    app: dex-force-server
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 3003
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dex-force-server
+  namespace: ckb-dex
+spec:
+  selector:
+    matchLabels:
+      app: dex-force-server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dex-force-server
+        logging: "true"
+    spec:
+      containers:
+        - name: dex-force-server
+          image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/force-bridge-orderbook:tag
+          args: ["force-server"]
+          ports:
+          - name: http
+            containerPort: 3003
+          volumeMounts:
+          - name: dex-force-server-conf
+            mountPath: /opt/config.toml
+            subPath: config.toml
+            readOnly: true
+      volumes:
+      - name: dex-force-server-conf
+        configMap:
+          name: force-bridge-conf
+
+

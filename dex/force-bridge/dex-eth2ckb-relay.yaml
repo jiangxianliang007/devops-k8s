@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dex-eth2ckb-relay
+  namespace: ckb-dex
+spec:
+  selector:
+    matchLabels:
+      app: dex-eth2ckb-relay
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dex-eth2ckb-relay
+        logging: "true"
+    spec:
+      containers:
+        - name: dex-eth2ckb-relay
+          image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/force-bridge-orderbook:2021-02-19-1459
+          command: ["/opt/entrypoint.sh"]
+          args: ["eth2ckb-relay"]
+          volumeMounts:
+          - name: dex-eth2ckb-relay-conf
+            mountPath: /opt/config.toml
+            subPath: config.toml
+            readOnly: true
+      volumes:
+      - name: dex-eth2ckb-relay-conf
+        configMap:
+          name: force-bridge-conf
+
+

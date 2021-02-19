@@ -97,18 +97,22 @@ data:
        type elasticsearch_dynamic
        log_level info
        include_tag_key true
-       host 127.0.0.1
+       host 172.31.7.167
        port 9200
        logstash_format true
        logstash_prefix logs-${record['kubernetes']['container_name']}
        # Set the chunk limits.
-       buffer_chunk_limit 2M
-       buffer_queue_limit 8
-       flush_interval 5s
+       buffer_chunk_limit 256M
+       buffer_queue_limit 128
+       flush_interval 10s
        # Never wait longer than 5 minutes between retries.
        max_retry_wait 30
        # Disable the limit on the number of retries (retry forever).
        disable_retry_limit
+       overflow_action block
        # Use multiple threads for processing.
-       num_threads 2
+       num_threads 4
+       reload_connections false
+       reconnect_on_error true
+       reload_on_failure true
     </match>

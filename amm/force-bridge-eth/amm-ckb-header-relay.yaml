@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: amm-ckb-header-relay
+  namespace: ckb-amm
+spec:
+  selector:
+    matchLabels:
+      app: amm-ckb-header-relay
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: amm-ckb-header-relay
+        logging: "true"
+    spec:
+      containers:
+        - name: amm-ckb-header-relay
+          image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/force-bridge-amm:tag
+          command: ["/opt/entrypoint.sh"]
+          args: ["ckb-header-relay"]
+          volumeMounts:
+          - name: amm-ckb-header-relay-conf
+            mountPath: /opt/config.toml
+            subPath: config.toml
+            readOnly: true
+      volumes:
+      - name: amm-ckb-header-relay-conf
+        configMap:
+          name: amm-force-bridge-conf
+
+

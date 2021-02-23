@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: amm-eth-tx-relayer
+  namespace: ckb-amm
+spec:
+  selector:
+    matchLabels:
+      app: amm-eth-tx-relayer
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: amm-eth-tx-relayer
+        logging: "true"
+    spec:
+      containers:
+        - name: amm-eth-tx-relayer
+          image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/force-bridge-amm:tag
+          command: ["/opt/entrypoint.sh"]
+          args: ["eth-tx-relayer"]
+          volumeMounts:
+          - name: amm-eth-tx-relayer-conf
+            mountPath: /opt/config.toml
+            subPath: config.toml
+            readOnly: true
+      volumes:
+      - name: amm-eth-tx-relayer-conf
+        configMap:
+          name: amm-force-bridge-conf
+
+

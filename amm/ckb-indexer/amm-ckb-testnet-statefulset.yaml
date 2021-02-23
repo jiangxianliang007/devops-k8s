@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: amm-ckb-testnet
+  namespace: ckb-amm
+spec:
+  selector:
+    matchLabels:
+      app: amm-ckb-testnet
+  serviceName: "ckb-testnet"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: amm-ckb-testnet
+        #logging: "true"
+    spec:
+      securityContext:
+        runAsUser: 0
+      containers:
+      - name: amm-ckb-testnet
+        image: "nervos/perkins-tent:v0.39.2"
+        env:
+        - name: CKB_NETWORK
+          value: testnet
+        ports:
+          - name: indexer
+            containerPort: 9115
+            protocol: "TCP"
+          - name: rpc
+            containerPort: 8114
+            protocol: "TCP"
+        volumeMounts:
+          - name: amm-ckb-data
+            mountPath: /data
+            subPath: amm-ckb-testnet
+      volumes:
+      - name: amm-ckb-data
+        persistentVolumeClaim:
+          claimName: amm-ckb-testnet-pvc

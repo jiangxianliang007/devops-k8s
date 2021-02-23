@@ -1,0 +1,46 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: amm-server-svc
+  namespace: ckb-amm
+spec:
+  selector:
+    app: amm-server
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: amm-server
+  namespace: ckb-amm
+spec:
+  selector:
+    matchLabels:
+      app: amm-server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: amm-server
+        logging: "true"
+    spec:
+      containers:
+        - name: amm-server
+          image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/amm-server:tag
+          ports:
+          - name: http
+            containerPort: 3000
+          volumeMounts:
+          - name: amm-server-conf
+            mountPath: /server/.env
+            subPath: .env
+            readOnly: true
+      volumes:
+      - name: amm-server-conf
+        configMap:
+          name: amm-server-env
+
+

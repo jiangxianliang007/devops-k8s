@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: amm-ckb-indexer
+  namespace: ckb-amm
+spec:
+  selector:
+    matchLabels:
+      app: amm-ckb-indexer
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: amm-ckb-indexer
+        logging: "true"
+    spec:
+      containers:
+        - name: amm-ckb-indexer
+          image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/force-bridge-amm:tag
+          command: ["/opt/entrypoint.sh"]
+          args: ["ckb-indexer"]
+          volumeMounts:
+          - name: amm-ckb-indexer-conf
+            mountPath: /opt/config.toml
+            subPath: config.toml
+            readOnly: true
+      volumes:
+      - name: amm-ckb-indexer-conf
+        configMap:
+          name: amm-force-bridge-conf
+
+

@@ -1,0 +1,45 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: amm-web-svc
+  namespace: ckb-amm
+spec:
+  selector:
+    app: amm-web
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: amm-web
+  namespace: ckb-amm
+spec:
+  selector:
+    matchLabels:
+      app: amm-web
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: amm-web
+        logging: "true"
+    spec:
+      containers:
+        - name: amm-web
+          image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/amm-web:tag
+          ports:
+          - name: http
+            containerPort: 80
+          volumeMounts:
+          - name: amm-web-conf
+            mountPath: /etc/nginx/conf.d/
+            readOnly: true
+      volumes:
+      - name: amm-web-conf
+        configMap:
+          name: amm-web-conf
+
+

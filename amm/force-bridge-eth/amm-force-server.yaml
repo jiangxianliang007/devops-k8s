@@ -1,0 +1,49 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: amm-force-server-svc
+  namespace: ckb-amm
+spec:
+  selector:
+    app: amm-force-server
+  type: NodePort
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 3003
+      nodePort: 30003
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: amm-force-server
+  namespace: ckb-amm
+spec:
+  selector:
+    matchLabels:
+      app: amm-force-server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: amm-force-server
+        logging: "true"
+    spec:
+      containers:
+        - name: amm-force-server
+          image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/force-bridge-amm:tag
+          args: ["force-server"]
+          ports:
+          - name: http
+            containerPort: 3003
+          volumeMounts:
+          - name: amm-force-server-conf
+            mountPath: /opt/config.toml
+            subPath: config.toml
+            readOnly: true
+      volumes:
+      - name: amm-force-server-conf
+        configMap:
+          name: amm-force-bridge-conf
+
+

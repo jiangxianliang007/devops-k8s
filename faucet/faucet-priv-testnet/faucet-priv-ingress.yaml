@@ -1,0 +1,24 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  namespace: staging
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+  name: faucet-priv-ingress
+spec:
+  rules:
+  - host: faucet-test.ckbapp.dev
+    http:
+      paths:
+      - path: /lina(/|$)(.*)
+        backend:
+          serviceName: faucet-priv-mainnet-svc
+          servicePort: 80
+      - path: /aggron(/|$)(.*)
+        backend:
+          serviceName: faucet-priv-testnet-svc
+          servicePort: 80
+

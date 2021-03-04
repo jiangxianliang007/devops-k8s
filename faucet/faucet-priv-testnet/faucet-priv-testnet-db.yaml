@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: staging
+  name: faucet-priv-testnet-db
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: faucet-priv-testnet-db
+  template:
+    metadata:
+      labels:
+        app: faucet-priv-testnet-db
+    spec:
+      containers:
+        - image: postgres:12.1
+          name: faucet-priv-testnet-db
+          env:
+            - name: POSTGRES_PASSWORD
+              value: pOV/S38tXg==jxl
+          ports:
+            - containerPort: 5432
+              name: http
+          volumeMounts:
+            - name: postgresql-persistent-storage
+              mountPath: /var/lib/postgresql/data
+              subPath: faucet-priv-testnet-pg
+      volumes:
+        - name: postgresql-persistent-storage
+          persistentVolumeClaim:
+            claimName: ckb-mainnet-staging-pvc
+

@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ckb-testnet-faucet
+  namespace: staging
+spec:
+  selector:
+    matchLabels:
+      app: ckb-testnet-faucet
+  serviceName: "ckb-testnet-faucet"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ckb-testnet-faucet
+        #logging: "true"
+    spec:
+      securityContext:
+        runAsUser: 0
+      containers:
+      - name: ckb-testnet-faucet
+        image: "jiangxianliang/ckb-mini:v0.35.0"
+        command:
+        - bash
+        - "-c"
+        - |
+          set -ex
+          cd /var/lib/ckb
+          #ckb init --chain testnet --force
+          ckb run
+        ports:
+          - name: rpc
+            containerPort: 8114
+            protocol: "TCP"
+          - name: websocket
+            containerPort: 28114
+            protocol: "TCP"
+        volumeMounts:
+          - name: ckb-data
+            mountPath: /var/lib/ckb
+            subPath: ckb-testnet-faucet
+      volumes:
+      - name: ckb-data
+        persistentVolumeClaim:
+          claimName: ckb-mainnet-staging-pvc
+
+

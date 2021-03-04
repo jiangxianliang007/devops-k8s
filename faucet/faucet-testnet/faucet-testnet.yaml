@@ -1,0 +1,143 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: faucet-testnet-server-web-svc
+  namespace: staging
+spec:
+  selector:
+    app: faucet-testnet-webserver
+  type: NodePort
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 8080
+      nodePort: 30111
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: faucet-testnet-puma-svc
+  namespace: staging
+spec:
+  selector:
+    app: faucet-testnet-puma
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: faucet-testnet-puma
+  namespace: staging
+spec:
+  selector:
+    matchLabels:
+      app: faucet-testnet-puma
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: faucet-testnet-puma
+        logging: "true"
+    spec:
+      initContainers:
+      - name: init-faucet-testnet-conf
+        image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/ckb-faucet:b5a71df
+        command: ["bash","entrypoint.sh"]
+        args: ["make_enc_cfg"]
+        volumeMounts:
+        - name: faucet-testnet-conf
+          mountPath: /config
+          subPath: faucet-testnet-config
+      - name: init-faucet-testnet-db
+        image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/ckb-faucet:b5a71df
+        command: ["bash","entrypoint.sh"]
+        args: ["db_migrate"]
+        volumeMounts:
+        - name: faucet-testnet-conf
+          mountPath: /config
+          subPath: faucet-testnet-config
+      containers:
+      - name: faucet-testnet-puma
+        image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/ckb-faucet:b5a71df
+        command: ["bash","entrypoint.sh"]
+        args: ["puma"]
+        ports:
+        - name: http
+          containerPort: 8080
+        volumeMounts:
+        - name: faucet-testnet-conf
+          mountPath: /config
+          subPath: faucet-testnet-config
+      volumes:
+      - name: faucet-testnet-conf
+        persistentVolumeClaim:
+          claimName: ckb-mainnet-staging-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: faucet-testnet-webserver
+  namespace: staging
+spec:
+  selector:
+    matchLabels:
+      app: faucet-testnet-webserver
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: faucet-testnet-webserver
+        logging: "true"
+    spec:
+      containers:
+      - name: faucet-testnet-webserver
+        image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/ckb-faucet:b5a71df
+        command: ["bash","entrypoint.sh"]
+        args: ["webserver"]
+        ports:
+        - name: http
+          containerPort: 8080
+        volumeMounts:
+        - name: faucet-testnet-conf
+          mountPath: /config
+          subPath: faucet-testnet-config
+      volumes:
+      - name: faucet-testnet-conf
+        persistentVolumeClaim:
+          claimName: ckb-mainnet-staging-pvc
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: faucet-testnet-claim-event-processor
+  namespace: staging
+spec:
+  selector:
+    matchLabels:
+      app: faucet-testnet-claim-event-processor
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: faucet-testnet-claim-event-processor
+        logging: "true"
+    spec:
+      containers:
+      - name: faucet-testnet-claim-event-processor
+        image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/ckb-faucet:b5a71df
+        command: ["bash","entrypoint.sh"]
+        args: ["claim_event_processor"]
+        ports:
+        volumeMounts:
+        - name: faucet-testnet-conf
+          mountPath: /config
+          subPath: faucet-testnet-config
+      volumes:
+      - name: faucet-testnet-conf
+        persistentVolumeClaim:
+          claimName: ckb-mainnet-staging-pvc
+

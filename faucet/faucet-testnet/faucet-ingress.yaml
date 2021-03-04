@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  namespace: staging
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+  name: faucet-ingress
+spec:
+  rules:
+  - host: faucet.nervos.org
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: faucet-nginx-svc
+          servicePort: 80
+

@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: amm-swap-matcher-usdt-ckb
+  namespace: ckb-amm
+spec:
+  selector:
+    matchLabels:
+      app: amm-swap-matcher-usdt-ckb
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: amm-swap-matcher-usdt-ckb
+        logging: "true"
+    spec:
+      containers:
+        - name: amm-swap-matcher-usdt-ckb
+          image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/glia-swap-matcher:tag
+          command: ["npm","run","start:usdt:dev"]
+          ports:
+          - name: http
+            containerPort: 8080
+          volumeMounts:
+          - name: amm-swap-matcher-usdt-ckb-conf
+            mountPath: /app/configs/ckUSDT-Ckb.env
+            subPath: ckUSDT-Ckb.env
+            readOnly: true
+      volumes:
+      - name: amm-swap-matcher-usdt-ckb-conf
+        configMap:
+          name: amm-swap-matcher-usdt-ckb-env
+
+

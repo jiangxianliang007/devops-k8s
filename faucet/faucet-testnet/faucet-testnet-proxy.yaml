@@ -1,0 +1,42 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: faucet-nginx-svc
+  namespace: staging
+spec:
+  selector:
+    app: faucet-nginx
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: faucet-nginx
+  namespace: staging
+spec:
+  selector:
+    matchLabels:
+      app: faucet-nginx
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: faucet-nginx
+    spec:
+      containers:
+      - name: faucet-nginx
+        image: jiangxianliang/nginx:1.18.0
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: faucet-nginx-conf
+          mountPath: /etc/nginx/conf.d/
+          readOnly: true
+      volumes:
+      - name: faucet-nginx-conf
+        configMap:
+          name: faucet-nginx-conf
+

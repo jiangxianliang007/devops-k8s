@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dex-redis-exporter
+  namespace: monitoring
+  labels:
+    k8s-app: dex-redis-exporter
+spec:
+  selector:
+    matchLabels:
+      k8s-app: dex-redis-exporter
+  template:
+    metadata:
+      labels:
+        k8s-app: dex-redis-exporter
+    spec:
+      containers:
+      - name: dex-redis-exporter
+        image: oliver006/redis_exporter:latest
+        args: ["-redis.addr", "redis://192.168.40.141:30079", "-redis.password", "******"]
+        ports:
+        - containerPort: 9121
+          name: http

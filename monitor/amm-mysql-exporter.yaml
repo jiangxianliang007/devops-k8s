@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: amm-mysql-exporter
+  namespace: monitoring
+  labels:
+    k8s-app: amm-mysql-exporter
+spec:
+  selector:
+    matchLabels:
+      k8s-app: amm-mysql-exporter
+  template:
+    metadata:
+      labels:
+        k8s-app: amm-mysql-exporter
+      name: amm-mysql-exporter
+    spec:
+      containers:
+      - name: amm-mysql-exporter
+        image: prom/mysqld-exporter:latest
+        env:
+          - name: DATA_SOURCE_NAME
+            value: root:*******@(192.168.61.206:30037)/
+        args:
+          - "--collect.info_schema.processlist"
+          - "--collect.info_schema.innodb_metrics"
+          - "--collect.info_schema.tablestats"
+          - "--collect.info_schema.userstats"
+          - "--collect.engine_innodb_status"
+          - "--collect.slave_hosts"
+        ports:
+        - containerPort: 9104
+          name: mysql-metrics

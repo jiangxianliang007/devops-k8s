@@ -1,0 +1,65 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: faucet-priv-mainnet-svc
+  namespace: staging
+spec:
+  selector:
+    app: faucet-priv-mainnet
+  type: NodePort   
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 8080
+      nodePort: 30112      
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: faucet-priv-mainnet
+  namespace: staging
+spec:
+  selector:
+    matchLabels:
+      app: faucet-priv-mainnet
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: faucet-priv-mainnet
+        logging: "true"
+    spec:
+      initContainers:
+      - name: init-faucet-priv-mainnet-conf
+        image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/ckb-faucet-priv:m-ac8a0a31
+        command: ["bash","entrypoint.sh"]
+        args: ["make_enc_cfg"]
+        volumeMounts:
+        - name: faucet-priv-mainnet-conf
+          mountPath: /config
+          subPath: faucet-priv-mainnet-config
+      - name: init-faucet-priv-mainnet-db
+        image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/ckb-faucet-priv:m-ac8a0a31
+        command: ["bash","entrypoint.sh"]
+        args: ["db_migrate"]
+        volumeMounts:
+        - name: faucet-priv-mainnet-conf
+          mountPath: /config
+          subPath: faucet-priv-mainnet-config
+      containers:
+      - name: faucet-priv-mainnet
+        image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/ckb-faucet-priv:m-ac8a0a31
+        command: ["bash","entrypoint.sh"]
+        args: ["puma"]
+        ports:
+        - name: http
+          containerPort: 8080
+        volumeMounts:
+        - name: faucet-priv-mainnet-conf
+          mountPath: /config
+          subPath: faucet-priv-mainnet-config
+      volumes:
+      - name: faucet-priv-mainnet-conf
+        persistentVolumeClaim:
+          claimName: ckb-mainnet-staging-pvc
+

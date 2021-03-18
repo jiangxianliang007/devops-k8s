@@ -12,7 +12,10 @@ data:
   proxy-body-size: "12m"
   client-header-buffer-size: "4k"
   proxy-connect-timeout: "60"
-
+  compute-full-forwarded-for: "true"
+  forwarded-for-header: "X-Forwarded-For"
+  use-forwarded-headers: "true"
+  
 ---
 kind: ConfigMap
 apiVersion: v1

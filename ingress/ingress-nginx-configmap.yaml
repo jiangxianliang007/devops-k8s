@@ -15,7 +15,7 @@ data:
   compute-full-forwarded-for: "true"
   forwarded-for-header: "X-Forwarded-For"
   use-forwarded-headers: "true"
-  
+
 ---
 kind: ConfigMap
 apiVersion: v1

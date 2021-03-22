@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: amm-rinkeby-eth-indexer
+  namespace: ckb-amm
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: amm-rinkeby-eth-indexer
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: amm-rinkeby-eth-indexer
+        logging: "true"
+    spec:
+      containers:
+        - name: amm-rinkeby-eth-indexer
+          image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/force-bridge-amm:2021-03-19-1322
+          command: ["/opt/entrypoint.sh"]
+          args: ["eth-indexer"]
+          volumeMounts:
+          - name: amm-rinkeby-eth-indexer-conf
+            mountPath: /opt/config.toml
+            subPath: config.toml
+            readOnly: true
+          - name: rocksdb-data
+            mountPath: /opt/rocksdb
+            subPath: dex-force-bridge-rocksdb
+      volumes:
+      - name: amm-rinkeby-eth-indexer-conf
+        configMap:
+          name: amm-rinkeby-force-bridge-conf
+      - name: rocksdb-data
+        persistentVolumeClaim:
+          claimName: amm-ckb-testnet-pvc
+

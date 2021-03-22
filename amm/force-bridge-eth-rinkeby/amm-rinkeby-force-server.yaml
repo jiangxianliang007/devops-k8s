@@ -1,0 +1,54 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: amm-rinkeby-force-server-svc
+  namespace: ckb-amm
+spec:
+  selector:
+    app: amm-rinkeby-force-server
+  type: NodePort
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 3003
+      nodePort: 30004
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: amm-rinkeby-force-server
+  namespace: ckb-amm
+spec:
+  selector:
+    matchLabels:
+      app: amm-rinkeby-force-server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: amm-rinkeby-force-server
+        logging: "true"
+    spec:
+      containers:
+        - name: amm-rinkeby-force-server
+          image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/force-bridge-amm:2021-03-19-1243
+          args: ["force-server"]
+          ports:
+          - name: http
+            containerPort: 3003
+          volumeMounts:
+          - name: amm-rinkeby-force-server-conf
+            mountPath: /opt/config.toml
+            subPath: config.toml
+            readOnly: true
+          - name: rocksdb-data
+            mountPath: /opt/rocksdb
+            subPath: dex-force-bridge-rocksdb
+      volumes:
+      - name: amm-rinkeby-force-server-conf
+        configMap:
+          name: amm-rinkeby-force-bridge-conf
+      - name: rocksdb-data
+        persistentVolumeClaim:
+          claimName: amm-ckb-testnet-pvc
+

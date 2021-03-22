@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  namespace: ckb-amm
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    
+  name: ingress-amm-rinkeby-force-server
+spec:
+  rules:
+  - host: bridge-server-amm-rinkeby.ckbapp.dev
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: amm-rinkeby-force-server-svc
+          servicePort: 80

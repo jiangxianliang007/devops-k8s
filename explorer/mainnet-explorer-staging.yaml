@@ -1,0 +1,126 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: staging-explorer-mainnet-puma-svc
+  namespace: staging
+spec:
+  selector:
+    app: staging-explorer-mainnet-puma
+  type: NodePort
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 8080
+      nodePort: 30113
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: staging-explorer-mainnet-sidekiq
+  namespace: staging
+spec:
+  selector:
+    matchLabels:
+      app: staging-explorer-mainnet-sidekiq
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: staging-explorer-mainnet-sidekiq
+        logging: "true"
+    spec:
+      initContainers:
+      - name: init-staging-explorer-mainnet-conf
+        image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/explorer:7b68c56f
+        command: ["bash","entrypoint.sh"]
+        args: ["init"]
+        volumeMounts:
+        - name: staging-explorer-mainnet-conf
+          mountPath: /config
+          subPath: staging-explorer-mainnet-config
+      containers:
+      - name: staging-explorer-mainnet-sidekiq
+        image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/explorer:7b68c56f
+        resources:
+          limits:
+            memory: "2000Mi"
+          requests:
+            memory: "200Mi"
+        command: ["bash","entrypoint.sh"]
+        args: ["sidekiq"]
+        volumeMounts:
+        - name: staging-explorer-mainnet-conf
+          mountPath: /config
+          subPath: staging-explorer-mainnet-config
+      volumes:
+      - name: staging-explorer-mainnet-conf
+        persistentVolumeClaim:
+          claimName: ckb-mainnet-staging-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: staging-explorer-mainnet-puma
+  namespace: staging
+spec:
+  selector:
+    matchLabels:
+      app: staging-explorer-mainnet-puma
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: staging-explorer-mainnet-puma
+        logging: "true"
+    spec:
+      containers:
+      - name: staging-explorer-mainnet-puma
+        image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/explorer:7b68c56f
+        command: ["bash","entrypoint.sh"]
+        args: ["puma"]
+        ports:
+        - name: http
+          containerPort: 8080
+        volumeMounts:
+        - name: staging-explorer-mainnet-conf
+          mountPath: /config
+          subPath: staging-explorer-mainnet-config
+      volumes:
+      - name: staging-explorer-mainnet-conf
+        persistentVolumeClaim:
+          claimName: ckb-mainnet-staging-pvc
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: staging-explorer-mainnet-block-node-processor
+  namespace: staging
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: staging-explorer-mainnet-block-node-processor
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: staging-explorer-mainnet-block-node-processor
+        logging: "true"
+    spec:
+      containers:
+      - name: staging-explorer-mainnet-block-node-processor
+        image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/explorer:7b68c56f
+        command: ["bash","entrypoint.sh"]
+        args: ["block_node_processor"]
+        ports:
+        volumeMounts:
+        - name: staging-explorer-mainnet-conf
+          mountPath: /config
+          subPath: staging-explorer-mainnet-config
+      volumes:
+      - name: staging-explorer-mainnet-conf
+        persistentVolumeClaim:
+          claimName: ckb-mainnet-staging-pvc
+

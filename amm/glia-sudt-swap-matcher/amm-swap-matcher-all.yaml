@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: amm-swap-matcher-all
+  namespace: ckb-amm
+spec:
+  selector:
+    matchLabels:
+      app: amm-swap-matcher-all
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: amm-swap-matcher-all
+        logging: "true"
+    spec:
+      containers:
+        - name: amm-swap-matcher-all
+          image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/glia-swap-matcher:tag
+          volumeMounts:
+          - name: amm-swap-matcher-all-conf
+            mountPath: /app/configs/cooperator.env
+            subPath: cooperator.env
+            readOnly: true
+      volumes:
+      - name: amm-swap-matcher-all-conf
+        configMap:
+          name: amm-swap-matcher-all-env
+
+

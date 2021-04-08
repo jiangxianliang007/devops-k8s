@@ -48,7 +48,14 @@ spec:
         - name: mysql-persistent-storage
           subPath: amm-mysql-data
           mountPath: /var/lib/mysql
+        - name: amm-mysql-cnf
+          mountPath: /etc/mysql/mysql.conf.d/mysqld.cnf
+          subPath: mysqld.cnf
       volumes:
       - name: mysql-persistent-storage
         persistentVolumeClaim:
           claimName: amm-mysql-pv-claim
+      - name: amm-mysql-cnf
+        configMap:
+          name: amm-mysql-cnf
+

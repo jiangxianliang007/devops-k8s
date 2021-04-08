@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: amm-server-rsync
+  namespace: ckb-amm
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: amm-server-rsync
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: amm-server-rsync
+        logging: "true"
+    spec:
+      containers:
+        - name: amm-server-rsync
+          image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/amm-server:978bce0
+          ports:
+          - name: http
+            containerPort: 3000
+          volumeMounts:
+          - name: amm-server-rsync-conf
+            mountPath: /server/.env
+            subPath: .env
+            readOnly: true
+      volumes:
+      - name: amm-server-rsync-conf
+        configMap:
+          name: amm-server-rsync-env
+
+

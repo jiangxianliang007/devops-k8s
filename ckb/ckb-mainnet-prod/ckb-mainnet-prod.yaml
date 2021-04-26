@@ -19,7 +19,7 @@ spec:
         runAsUser: 0
       containers:
       - name: ckb-mainnet-prod
-        image: "jiangxianliang/ckb-mini:v0.38.1"
+        image: "jiangxianliang/ckb-mini:v0.40.0"
         command:
         - bash
         - "-c"
@@ -28,6 +28,20 @@ spec:
           cd /var/lib/ckb
           #ckb init --chain mainnet --force
           ckb run
+        #livenessProbe:
+          #exec:
+            #command:
+            #- /bin/check-ckb
+          #initialDelaySeconds: 30
+          #periodSeconds: 30
+          #failureThreshold: 10
+        readinessProbe:
+          exec:
+            command:
+            - /bin/check-ckb
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          failureThreshold: 10
         ports:
           - name: rpc
             containerPort: 8114

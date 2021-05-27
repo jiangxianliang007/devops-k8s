@@ -1,0 +1,53 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: testnet-godwoken-web3-svc
+  namespace: layer2
+spec:
+  selector:
+    app: testnet-godwoken-web3
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testnet-godwoken-web3
+  namespace: layer2
+spec:
+  selector:
+    matchLabels:
+      app: testnet-godwoken-web3
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: testnet-godwoken-web3
+        logging: "true"
+    spec:
+      containers:
+        - name: testnet-godwoken-web3
+          image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/godwoken-web3:tag
+          command:
+          - bash
+          - "-c"
+          - |
+            set -ex
+            yarn workspace @godwoken-web3/godwoken tsc 
+            yarn workspace @godwoken-web3/api-server start
+          ports:
+          - name: http
+            containerPort: 3000
+          volumeMounts:
+          - name: testnet-godwoken-web3-env
+            mountPath: /godwoken-web3/packages/api-server/.env
+            subPath: .env
+            readOnly: true
+      volumes:
+      - name: testnet-godwoken-web3-env
+        configMap:
+          name: testnet-godwoken-web3-env
+
+

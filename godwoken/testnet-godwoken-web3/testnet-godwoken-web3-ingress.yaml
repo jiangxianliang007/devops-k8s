@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  namespace: layer2
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    
+  name: testnet-godwoken-web3-ingress
+spec:
+  rules:
+  - host: godwoken-testnet-web3-rpc.ckbapp.dev
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: testnet-godwoken-web3-nginx-svc
+          servicePort: 80

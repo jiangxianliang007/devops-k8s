@@ -27,6 +27,7 @@ spec:
           set -ex
           cd /var/lib/ckb
           #ckb init --chain mainnet --force
+          ckb migrate --force
           ckb run
         #livenessProbe:
           #exec:

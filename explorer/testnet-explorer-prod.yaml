@@ -1,0 +1,126 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: prod-explorer-testnet-puma-svc
+  namespace: prod
+spec:
+  selector:
+    app: prod-explorer-testnet-puma
+  type: NodePort
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 8080
+      nodePort: 30116
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prod-explorer-testnet-sidekiq
+  namespace: prod
+spec:
+  selector:
+    matchLabels:
+      app: prod-explorer-testnet-sidekiq
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: prod-explorer-testnet-sidekiq
+        #logging: "true"
+    spec:
+      initContainers:
+      - name: init-prod-explorer-testnet-conf
+        image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/explorer:dc172da7
+        command: ["bash","entrypoint.sh"]
+        args: ["init"]
+        volumeMounts:
+        - name: prod-explorer-testnet-conf
+          mountPath: /config
+          subPath: prod-explorer-testnet-config
+      containers:
+      - name: prod-explorer-testnet-sidekiq
+        image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/explorer:dc172da7
+        resources:
+          limits:
+            memory: "2000Mi"
+          requests:
+            memory: "1000Mi"
+        command: ["bash","entrypoint.sh"]
+        args: ["sidekiq"]
+        volumeMounts:
+        - name: prod-explorer-testnet-conf
+          mountPath: /config
+          subPath: prod-explorer-testnet-config
+      volumes:
+      - name: prod-explorer-testnet-conf
+        persistentVolumeClaim:
+          claimName: prod-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prod-explorer-testnet-puma
+  namespace: prod
+spec:
+  selector:
+    matchLabels:
+      app: prod-explorer-testnet-puma
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: prod-explorer-testnet-puma
+        #logging: "true"
+    spec:
+      containers:
+      - name: prod-explorer-testnet-puma
+        image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/explorer:dc172da7
+        command: ["bash","entrypoint.sh"]
+        args: ["puma"]
+        ports:
+        - name: http
+          containerPort: 8080
+        volumeMounts:
+        - name: prod-explorer-testnet-conf
+          mountPath: /config
+          subPath: prod-explorer-testnet-config
+      volumes:
+      - name: prod-explorer-testnet-conf
+        persistentVolumeClaim:
+          claimName: prod-pvc
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prod-explorer-testnet-block-node-processor
+  namespace: prod
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: prod-explorer-testnet-block-node-processor
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: prod-explorer-testnet-block-node-processor
+        #logging: "true"
+    spec:
+      containers:
+      - name: prod-explorer-testnet-block-node-processor
+        image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/explorer:dc172da7
+        command: ["bash","entrypoint.sh"]
+        args: ["block_node_processor"]
+        ports:
+        volumeMounts:
+        - name: prod-explorer-testnet-conf
+          mountPath: /config
+          subPath: prod-explorer-testnet-config
+      volumes:
+      - name: prod-explorer-testnet-conf
+        persistentVolumeClaim:
+          claimName: prod-pvc
+

@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ckb-mainnet-mercury
+  namespace: staging
+spec:
+  selector:
+    matchLabels:
+      app: ckb-mainnet-mercury
+  serviceName: "ckb-mainnet-mercury"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ckb-mainnet-mercury
+        #logging: "true"
+    spec:
+      securityContext:
+        runAsUser: 0
+      containers:
+      - name: ckb-mainnet-mercury
+        image: "jiangxianliang/mercury:0.1.0-rc.2"
+        command:
+        - bash
+        - "-c"
+        - |
+          set -ex
+          mercury -c /config/mainnet-config.toml run
+        ports:
+          - name: rpc
+            containerPort: 8116
+            protocol: "TCP"
+        volumeMounts:
+          - name: mainnet-mercury-db
+            mountPath: /data/
+            subPath: mainnet-mercury-data
+          - name: mercury-mainnet-conf
+            mountPath: /config/mainnet-config.toml
+            subPath: mainnet-config.toml
+      volumes:
+      - name: mainnet-mercury-db
+        persistentVolumeClaim:
+          claimName: ckb-mainnet-staging-pvc
+      - name: mercury-mainnet-conf
+        configMap:
+          name: mercury-mainnet-config
+

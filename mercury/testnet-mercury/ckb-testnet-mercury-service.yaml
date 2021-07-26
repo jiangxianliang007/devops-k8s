@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ckb-testnet-mercury-svc
+  namespace: staging
+  labels:
+    app: ckb-testnet-mercury-svc
+spec:
+  ports:
+  - name: rpc
+    port: 8118
+    targetPort: 8116
+    protocol: TCP
+  type: ClusterIP
+  selector:
+    app: ckb-testnet-mercury
+

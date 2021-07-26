@@ -1,0 +1,18 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  namespace: staging
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    
+  name: ingress-testnet-mercury
+spec:
+  rules:
+  - host: mercury-testnet.ckbapp.dev
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: ckb-testnet-mercury-svc
+          servicePort: 8118
+

@@ -28,7 +28,8 @@ spec:
     spec:
       containers:
       - name: testnet-godwoken-web3-nginx
-        image: jiangxianliang/nginx:1.18.0
+        image: jiangxianliang/nginx:1.18.0-0824
+        imagePullPolicy: Always
         ports:
         - containerPort: 80
         volumeMounts:
@@ -39,4 +40,3 @@ spec:
       - name: testnet-godwoken-web3-nginx-conf
         configMap:
           name: testnet-godwoken-web3-nginx-conf
-

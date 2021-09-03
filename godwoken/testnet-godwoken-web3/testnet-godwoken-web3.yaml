@@ -17,10 +17,12 @@ metadata:
   name: testnet-godwoken-web3
   namespace: layer2
 spec:
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: testnet-godwoken-web3
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:
@@ -29,13 +31,14 @@ spec:
     spec:
       containers:
         - name: testnet-godwoken-web3
-          image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/godwoken-web3:tag
+          image: nervos/godwoken-js-prebuilds:v0.7.0-rc2
           command:
           - bash
           - "-c"
           - |
             set -ex
-            yarn workspace @godwoken-web3/godwoken tsc 
+            cd godwoken-web3
+            yarn run migrate:latest
             yarn workspace @godwoken-web3/api-server start
           ports:
           - name: http
@@ -49,5 +52,3 @@ spec:
       - name: testnet-godwoken-web3-env
         configMap:
           name: testnet-godwoken-web3-env
-
-

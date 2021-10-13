@@ -1,0 +1,58 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: mainnet-forcebridge-verifier1-svc
+  namespace: michi
+spec:
+  selector:
+    app: mainnet-forcebridge-verifier1
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mainnet-forcebridge-verifier1
+  namespace: michi
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: mainnet-forcebridge-verifier1
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mainnet-forcebridge-verifier1
+        logging: "true"
+    spec:
+      containers:
+        - name: mainnet-forcebridge-verifier1
+          image: nervos/force-bridge:0.0.9
+          env:
+          - name: FORCE_BRIDGE_KEYSTORE_PASSWORD
+            value: "*********"
+          ports:
+          - name: rpc
+            containerPort: 80
+            protocol: "TCP"
+          command:
+          - bash
+          - "-c"
+          - |
+            set -ex
+            #yarn global add @force-bridge/cli@0.0.9
+            forcecli verifier -cfg /data/force_bridge.json
+          volumeMounts:
+          - name: forcebridge-data
+            mountPath: /data/
+            subPath: forcebridgemainnet/verifier1
+      volumes:
+      - name: forcebridge-data
+        persistentVolumeClaim:
+          claimName: michi-ckb-testnet-pvc
+
+

@@ -1,0 +1,105 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: mainnet-forcebridge-watcher-svc
+  namespace: michi
+spec:
+  selector:
+    #app: mainnet-forcebridge-watcher-1
+    svc: mainnet-forcebridge-watcher
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mainnet-forcebridge-watcher-1
+  namespace: michi
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: mainnet-forcebridge-watcher-1
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mainnet-forcebridge-watcher-1
+        svc: mainnet-forcebridge-watcher
+        logging: "true"
+    spec:
+      containers:
+        - name: mainnet-forcebridge-watcher-1
+          image: nervos/force-bridge:0.0.9
+          env:
+          - name: FORCE_BRIDGE_KEYSTORE_PASSWORD
+            value: "*****"
+          ports:
+          - name: rpc
+            containerPort: 80
+            protocol: "TCP"
+          command:
+          - bash
+          - "-c"
+          - |
+            set -ex
+            #yarn global add @force-bridge/cli@0.0.9
+            forcecli rpc -cfg /data/force_bridge.json
+          volumeMounts:
+          - name: forcebridge-data
+            mountPath: /data/
+            subPath: forcebridgemainnet/watcher
+      volumes:
+      - name: forcebridge-data
+        persistentVolumeClaim:
+          claimName: michi-ckb-testnet-pvc
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mainnet-forcebridge-watcher-2
+  namespace: michi
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: mainnet-forcebridge-watcher-2
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mainnet-forcebridge-watcher-2
+        svc: mainnet-forcebridge-watcher
+        logging: "true"
+    spec:
+      containers:
+        - name: mainnet-forcebridge-watcher-2
+          image: nervos/force-bridge:0.0.9
+          env:
+          - name: FORCE_BRIDGE_KEYSTORE_PASSWORD
+            value: "*****"
+          ports:
+          - name: rpc
+            containerPort: 80
+            protocol: "TCP"
+          command:
+          - bash
+          - "-c"
+          - |
+            set -ex
+            #yarn global add @force-bridge/cli@0.0.9
+            forcecli rpc -cfg /data/force_bridge.json
+          volumeMounts:
+          - name: forcebridge-data
+            mountPath: /data/
+            subPath: forcebridgemainnet/watcher2
+      volumes:
+      - name: forcebridge-data
+        persistentVolumeClaim:
+          claimName: michi-ckb-testnet-pvc
+

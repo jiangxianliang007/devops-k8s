@@ -1,0 +1,58 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: testnet-forcebridge-verifier2-svc
+  namespace: michi
+spec:
+  selector:
+    app: testnet-forcebridge-verifier2
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testnet-forcebridge-verifier2
+  namespace: michi
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: testnet-forcebridge-verifier2
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: testnet-forcebridge-verifier2
+        logging: "true"
+    spec:
+      containers:
+        - name: testnet-forcebridge-verifier2
+          image: nervos/force-bridge:0.0.9
+          env:
+          - name: FORCE_BRIDGE_KEYSTORE_PASSWORD
+            value: "*****"
+          ports:
+          - name: rpc
+            containerPort: 80
+            protocol: "TCP"
+          command:
+          - bash
+          - "-c"
+          - |
+            set -ex
+            #yarn global add @force-bridge/cli@latest
+            forcecli verifier -cfg /data/force_bridge.json
+          volumeMounts:
+          - name: forcebridge-data
+            mountPath: /data/
+            subPath: forcebridgetestnet/verifier2
+      volumes:
+      - name: forcebridge-data
+        persistentVolumeClaim:
+          claimName: michi-ckb-testnet-pvc
+
+

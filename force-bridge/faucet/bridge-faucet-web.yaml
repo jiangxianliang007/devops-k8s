@@ -1,0 +1,43 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: bridge-faucet-web-svc
+  namespace: michi
+spec:
+  selector:
+    app: bridge-faucet-web
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bridge-faucet-web
+  namespace: michi
+spec:
+  selector:
+    matchLabels:
+      app: bridge-faucet-web
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: bridge-faucet-web
+    spec:
+      containers:
+        - name: bridge-faucet-web
+          image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/amm-faucet:075ef5e
+          ports:
+          - name: http
+            containerPort: 80
+          volumeMounts:
+          - name: bridge-faucet-web-conf
+            mountPath: /etc/nginx/conf.d/
+            readOnly: true
+      volumes:
+      - name: bridge-faucet-web-conf
+        configMap:
+          name: bridge-faucet-web-conf
+

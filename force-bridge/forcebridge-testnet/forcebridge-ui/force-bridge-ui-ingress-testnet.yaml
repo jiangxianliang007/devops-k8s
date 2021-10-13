@@ -1,0 +1,18 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  namespace: michi
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    
+  name: ingress-force-bridge-ui-testnet
+spec:
+  rules:
+  - host: testnet.forcebridge.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: service-force-bridge-ui-testnet
+          servicePort: 80
+

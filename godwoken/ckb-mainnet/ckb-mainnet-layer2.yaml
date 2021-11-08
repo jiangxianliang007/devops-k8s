@@ -19,7 +19,7 @@ spec:
         runAsUser: 0
       containers:
       - name: ckb-mainnet-layer2
-        image: "jiangxianliang/ckb-mini:v0.41.0"
+        image: "jiangxianliang/ckb-mini:v0.43.0"
         command:
         - bash
         - "-c"

@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: godwoken-ckb-testnet
+  namespace: layer2
+spec:
+  selector:
+    matchLabels:
+      app: godwoken-ckb-testnet
+  serviceName: "ckb-testnet"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: godwoken-ckb-testnet
+        #logging: "true"
+    spec:
+      securityContext:
+        runAsUser: 0
+      containers:
+      - name: godwoken-ckb-testnet
+        image: "nervos/perkins-tent:v0.100.0"
+        env:
+        - name: CKB_NETWORK
+          value: testnet
+        ports:
+          - name: rpc
+            containerPort: 9115
+            protocol: "TCP"
+        volumeMounts:
+          - name: godwoken-ckb-data
+            mountPath: /data
+            subPath: godwoken-ckb-testnet
+      volumes:
+      - name: godwoken-ckb-data
+        persistentVolumeClaim:
+          claimName: godwoken-data-pvc

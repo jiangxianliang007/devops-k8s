@@ -18,18 +18,18 @@ metadata:
       proxy_set_header Connection "upgrade";
       proxy_cache_bypass $http_upgrade;
       }    
-  name: testnet-godwoken-web3-ingress
+  name: mainnet-godwoken-web3-ingress
 spec:
   rules:
-  - host: godwoken-testnet-web3-rpc.ckbapp.dev
+  - host: mainnet.godwoken.io
     http:
       paths:
-      - path: /
+      - path: /rpc
         backend:
-          serviceName: testnet-godwoken-web3-nginx-svc
+          serviceName: mainnet-godwoken-web3-nginx-svc
           servicePort: 80
       - path: /ws
         backend:
-          serviceName: testnet-godwoken-web3-nginx-svc
+          serviceName: mainnet-godwoken-web3-nginx-svc
           servicePort: 80
 

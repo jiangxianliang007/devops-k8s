@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ckb-testnet-godwoken-1
+  namespace: layer2
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: ckb-testnet-godwoken-1
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ckb-testnet-godwoken-1
+        svc: ckb-testnet-godwoken
+        logging: "true"
+    spec:
+      containers:
+      - name: ckb-testnet-godwoken-1
+        image: "nervos/godwoken-prebuilds:v0.6.7-rc3"
+        command:
+        - bash
+        - "-c"
+        - |
+          set -ex
+          godwoken run -c /deploy/config.toml
+        env:
+        - name: RUST_BACKTRACE
+          value: "1"
+        - name: RUST_LOG
+          value: "info"
+        - name: SMOL_THREADS
+          value: "12"
+        ports:
+          - name: rpc
+            containerPort: 8119
+            protocol: "TCP"
+        volumeMounts:
+          - name: godwoken-testnet-conf
+            mountPath: /deploy/config.toml
+            subPath: config.toml
+            readOnly: true
+          - name: godwoken-testnet-pk
+            mountPath: /deploy/pk
+            subPath: pk
+            readOnly: true
+          - name: godwoken-testnet-db-conf
+            mountPath: /deploy/db.toml
+            subPath: db.toml
+            readOnly: true
+          - name: logs
+            mountPath: /debug-data
+            subPath: ckb-testnet-godwoken-logs-1
+          - name: db
+            mountPath: /store.db
+            subPath: ckb-testnet-godwoken-db-1
+      volumes:
+      - name: godwoken-testnet-conf
+        configMap:
+          name: godwoken-testnet-conf-1
+      - name: godwoken-testnet-pk
+        configMap:
+          name: godwoken-testnet-pk-1
+      - name: godwoken-testnet-db-conf
+        configMap:
+          name: godwoken-testnet-db-conf-1
+      - name: logs
+        persistentVolumeClaim:
+          claimName: godwoken-logs-pvc
+      - name: db
+        persistentVolumeClaim:
+          claimName: godwoken-data-pvc

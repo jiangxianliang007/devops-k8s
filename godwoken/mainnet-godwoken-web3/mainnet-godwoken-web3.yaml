@@ -1,11 +1,11 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: testnet-godwoken-web3-svc
+  name: mainnet-godwoken-web3-svc
   namespace: layer2
 spec:
   selector:
-    app: testnet-godwoken-web3
+    app: mainnet-godwoken-web3
   ports:
     - protocol: "TCP"
       port: 80
@@ -14,24 +14,24 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: testnet-godwoken-web3
+  name: mainnet-godwoken-web3
   namespace: layer2
 spec:
   strategy:
     type: Recreate
   selector:
     matchLabels:
-      app: testnet-godwoken-web3
-  replicas: 3
+      app: mainnet-godwoken-web3
+  replicas: 1
   template:
     metadata:
       labels:
-        app: testnet-godwoken-web3
+        app: mainnet-godwoken-web3
         logging: "true"
     spec:
       containers:
-        - name: testnet-godwoken-web3
-          image: nervos/godwoken-web3-prebuilds:v0.8.0-rc1.fix
+        - name: mainnet-godwoken-web3
+          image: nervos/godwoken-js-prebuilds:v0.8.0-rc1
           command:
           - bash
           - "-c"
@@ -44,13 +44,13 @@ spec:
           - name: http
             containerPort: 3000
           volumeMounts:
-          - name: testnet-godwoken-web3-env
+          - name: mainnet-godwoken-web3-env
             mountPath: /godwoken-web3/packages/api-server/.env
             subPath: .env
             readOnly: true
       volumes:
-      - name: testnet-godwoken-web3-env
+      - name: mainnet-godwoken-web3-env
         configMap:
-          name: testnet-godwoken-web3-env
+          name: mainnet-godwoken-web3-env
 
 

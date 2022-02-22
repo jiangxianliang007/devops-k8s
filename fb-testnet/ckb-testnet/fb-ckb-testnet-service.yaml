@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: fb-ckb-testnet-svc
+  namespace: fb-testnet
+  labels:
+    app: fb-ckb-testnet-svc
+spec:
+  ports:
+  - name: rpc
+    port: 8114
+    targetPort: 9115
+    protocol: TCP
+  type: ClusterIP
+  selector:
+    app: fb-ckb-testnet
+

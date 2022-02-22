@@ -1,0 +1,18 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  namespace: fb-testnet
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    
+  name: bridge-faucet-web-ingress
+spec:
+  rules:
+  - host: gliaswap-faucet-rinkeby.ckbapp.dev
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: bridge-faucet-web-svc
+          servicePort: 80
+

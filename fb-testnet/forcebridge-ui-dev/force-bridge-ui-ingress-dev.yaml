@@ -1,0 +1,18 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  namespace: fb-testnet
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    
+  name: ingress-force-bridge-ui-dev
+spec:
+  rules:
+  - host: force-bridge-dev.ckbapp.dev
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: service-force-bridge-ui-dev
+          servicePort: 80
+

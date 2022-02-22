@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: fb-ckb-testnet
+  namespace: fb-testnet
+spec:
+  selector:
+    matchLabels:
+      app: fb-ckb-testnet
+      logging: "true"
+  serviceName: "fb-ckb-testnet"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: fb-ckb-testnet
+        logging: "true"
+    spec:
+      securityContext:
+        runAsUser: 0
+      containers:
+      - name: fb-ckb-testnet
+        image: "nervos/perkins-tent:v0.101.4"
+        env:
+        - name: CKB_NETWORK
+          value: testnet
+        ports:
+          - name: rpc
+            containerPort: 9115
+            protocol: "TCP"
+        volumeMounts:
+          - name: fb-ckb-data
+            mountPath: /data
+            subPath: fb-ckb-testnet
+      volumes:
+      - name: fb-ckb-data
+        persistentVolumeClaim:
+          claimName: fb-testnet-pvc

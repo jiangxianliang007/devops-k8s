@@ -1,0 +1,57 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: testnet-forcebridge-collector-svc
+  namespace: fb-testnet
+spec:
+  selector:
+    app: testnet-forcebridge-collector
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testnet-forcebridge-collector
+  namespace: fb-testnet
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: testnet-forcebridge-collector
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: testnet-forcebridge-collector
+        logging: "true"
+    spec:
+      containers:
+        - name: testnet-forcebridge-collector
+          image: nervos/force-bridge:0.0.19
+          env:
+          - name: FORCE_BRIDGE_KEYSTORE_PASSWORD
+            value: "*****"
+          ports:
+          - name: rpc
+            containerPort: 80
+            protocol: "TCP"
+          command:
+          - bash
+          - "-c"
+          - |
+            set -ex
+            forcecli collector -cfg /data/force_bridge.json
+          volumeMounts:
+          - name: forcebridge-data
+            mountPath: /data/
+            subPath: forcebridgetestnet/collector
+      volumes:
+      - name: forcebridge-data
+        persistentVolumeClaim:
+          claimName: fb-testnet-pvc
+
+

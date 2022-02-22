@@ -1,0 +1,56 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: testnet-forcebridge-bsc-watcher-write-svc
+  namespace: fb-testnet
+spec:
+  selector:
+    app: testnet-forcebridge-bsc-watcher-write
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testnet-forcebridge-bsc-watcher-write
+  namespace: fb-testnet
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: testnet-forcebridge-bsc-watcher-write
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: testnet-forcebridge-bsc-watcher-write
+        logging: "true"
+    spec:
+      containers:
+        - name: testnet-forcebridge-bsc-watcher-write
+          image: nervos/force-bridge:0.0.17
+          env:
+          - name: FORCE_BRIDGE_KEYSTORE_PASSWORD
+            value: "*****"
+          ports:
+          - name: rpc
+            containerPort: 80
+            protocol: "TCP"
+          command:
+          - bash
+          - "-c"
+          - |
+            set -ex
+            forcecli rpc -cfg /data/force_bridge.json
+          volumeMounts:
+          - name: forcebridge-data
+            mountPath: /data/
+            subPath: forcebridgetestnetbsc/watcher-write
+      volumes:
+      - name: forcebridge-data
+        persistentVolumeClaim:
+          claimName: fb-testnet-pvc
+

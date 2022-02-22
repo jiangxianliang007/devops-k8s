@@ -1,0 +1,54 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: testnet-forcebridge-watcher-read-svc
+  namespace: fb-testnet
+spec:
+  selector:
+    app: testnet-forcebridge-watcher-read
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testnet-forcebridge-watcher-read
+  namespace: fb-testnet
+spec:
+  selector:
+    matchLabels:
+      app: testnet-forcebridge-watcher-read
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: testnet-forcebridge-watcher-read
+        logging: "true"
+    spec:
+      containers:
+        - name: testnet-forcebridge-watcher-read
+          image: nervos/force-bridge:0.0.24
+          env:
+          - name: FORCE_BRIDGE_KEYSTORE_PASSWORD
+            value: "*****"
+          ports:
+          - name: rpc
+            containerPort: 80
+            protocol: "TCP"
+          command:
+          - bash
+          - "-c"
+          - |
+            set -ex
+            forcecli rpc -cfg /data/force_bridge.json
+          volumeMounts:
+          - name: forcebridge-data
+            mountPath: /data/
+            subPath: forcebridgetestnet/watcher-read
+      volumes:
+      - name: forcebridge-data
+        persistentVolumeClaim:
+          claimName: fb-testnet-pvc
+

@@ -1,0 +1,44 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: service-force-bridge-ui-dev
+  namespace: fb-testnet
+spec:
+  selector:
+    app: force-bridge-ui-dev
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: force-bridge-ui-dev
+  namespace: fb-testnet
+spec:
+  selector:
+    matchLabels:
+      app: force-bridge-ui-dev
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: force-bridge-ui-dev
+    spec:
+      containers:
+        - name: force-bridge-ui-dev
+          image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/force-bridge-ui:590a989
+          ports:
+          - name: http
+            containerPort: 80
+          volumeMounts:
+          - name: force-bridge-ui-dev-conf
+            mountPath: /etc/nginx/conf.d/
+            readOnly: true
+      volumes:
+      - name: force-bridge-ui-dev-conf
+        configMap:
+          name: nginx-conf-force-bridge-ui-dev
+
+

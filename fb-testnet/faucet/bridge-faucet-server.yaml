@@ -1,0 +1,45 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: bridge-faucet-server-svc
+  namespace: fb-testnet
+spec:
+  selector:
+    app: bridge-faucet-server
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 3089
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bridge-faucet-server
+  namespace: fb-testnet
+spec:
+  selector:
+    matchLabels:
+      app: bridge-faucet-server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: bridge-faucet-server
+    spec:
+      containers:
+        - name: bridge-faucet-server
+          image: 198023153192.dkr.ecr.ap-east-1.amazonaws.com/amm-faucet:373e48d
+          ports:
+          - name: http
+            containerPort: 3089
+          volumeMounts:
+          - name: bridge-faucet-server-conf
+            mountPath: /usr/app/.env
+            subPath: .env
+            readOnly: true
+      volumes:
+      - name: bridge-faucet-server-conf
+        configMap:
+          name: bridge-faucet-server-env
+
+

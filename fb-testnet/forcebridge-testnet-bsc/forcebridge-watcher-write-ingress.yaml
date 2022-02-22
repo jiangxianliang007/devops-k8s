@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  namespace: fb-testnet
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+  name: forcebridge-bscwatcher-write-testnet-ingress
+spec:
+  rules:
+  - host: testnet-bscwatcher-write.forcebridge.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: testnet-forcebridge-bsc-write-watcher-svc
+          servicePort: 80
+

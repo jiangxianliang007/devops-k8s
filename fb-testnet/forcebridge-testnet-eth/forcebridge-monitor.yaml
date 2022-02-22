@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testnet-forcebridge-monitor
+  namespace: fb-testnet
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: testnet-forcebridge-monitor
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: testnet-forcebridge-monitor
+        logging: "true"
+    spec:
+      containers:
+        - name: testnet-forcebridge-monitor
+          image: nervos/force-bridge:0.0.15
+          env:
+          - name: MONITOR_DURATION_CONFIG_PATH
+            value: "/data/monitor.json"
+          command:
+          - bash
+          - "-c"
+          - |
+            set -ex
+            forcecli monitor -cfg /data/force_bridge.json
+          volumeMounts:
+          - name: forcebridge-data
+            mountPath: /data/
+            subPath: forcebridgetestnet/monitor
+      volumes:
+      - name: forcebridge-data
+        persistentVolumeClaim:
+          claimName: fb-testnet-pvc
+
+

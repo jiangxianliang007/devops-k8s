@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mainnet-forcebridge-bsc-monitor
+  namespace: michi
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: mainnet-forcebridge-bsc-monitor
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mainnet-forcebridge-bsc-monitor
+        logging: "true"
+    spec:
+      containers:
+        - name: mainnet-forcebridge-bsc-monitor
+          image: nervos/force-bridge:0.0.17
+          env:
+          - name: MONITOR_DURATION_CONFIG_PATH
+            value: "/data/monitor.json"
+          command:
+          - bash
+          - "-c"
+          - |
+            set -ex
+            forcecli monitor -cfg /data/force_bridge.json
+          volumeMounts:
+          - name: forcebridge-data
+            mountPath: /data/
+            subPath: forcebridgemainnetbsc/monitor
+      nodeSelector:
+        forcebridge: "true"
+      volumes:
+      - name: forcebridge-data
+        persistentVolumeClaim:
+          claimName: michi-ckb-testnet-pvc
+
+

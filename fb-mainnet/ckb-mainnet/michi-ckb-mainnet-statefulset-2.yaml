@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: michi-ckb-mainnet-2
+  namespace: michi
+spec:
+  selector:
+    matchLabels:
+      app: michi-ckb-mainnet-2
+      logging: "true"
+  serviceName: "ckb-mainnet"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: michi-ckb-mainnet-2
+        logging: "true"
+    spec:
+      securityContext:
+        runAsUser: 0
+      containers:
+      - name: michi-ckb-mainnet-2
+        image: "nervos/perkins-tent:v0.101.3"
+        env:
+        - name: CKB_NETWORK
+          value: mainnet
+        ports:
+          - name: rpc
+            containerPort: 9115
+            protocol: "TCP"
+        volumeMounts:
+          - name: michi-ckb-data
+            mountPath: /data
+            subPath: michi-ckb-mainnet
+      volumes:
+      - name: michi-ckb-data
+        persistentVolumeClaim:
+          claimName: michi-ckb-testnet-pvc

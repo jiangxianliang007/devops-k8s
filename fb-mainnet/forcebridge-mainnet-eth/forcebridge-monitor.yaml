@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: mainnet-forcebridge-monitor
-          image: nervos/force-bridge:0.0.9
+          image: nervos/force-bridge:0.0.15
           env:
           - name: MONITOR_DURATION_CONFIG_PATH
             value: "/data/monitor.json"
@@ -27,12 +27,13 @@ spec:
           - "-c"
           - |
             set -ex
-            #yarn global add @force-bridge/cli@0.0.9
             forcecli monitor -cfg /data/force_bridge.json
           volumeMounts:
           - name: forcebridge-data
             mountPath: /data/
             subPath: forcebridgemainnet/monitor
+      nodeSelector:
+        forcebridge: "true"
       volumes:
       - name: forcebridge-data
         persistentVolumeClaim:

@@ -1,0 +1,44 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: service-force-bridge-ui-mainnet
+  namespace: michi
+spec:
+  selector:
+    app: force-bridge-ui-mainnet
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: force-bridge-ui-mainnet
+  namespace: michi
+spec:
+  selector:
+    matchLabels:
+      app: force-bridge-ui-mainnet
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: force-bridge-ui-mainnet
+    spec:
+      containers:
+        - name: force-bridge-ui-mainnet
+          image: 1980231531932.dkr.ecr.ap-east-1.amazonaws.com/force-bridge-ui:******
+          ports:
+          - name: http
+            containerPort: 80
+          volumeMounts:
+          - name: force-bridge-ui-mainnet-conf
+            mountPath: /etc/nginx/conf.d/
+            readOnly: true
+      volumes:
+      - name: force-bridge-ui-mainnet-conf
+        configMap:
+          name: nginx-conf-force-bridge-mainnet-ui
+
+

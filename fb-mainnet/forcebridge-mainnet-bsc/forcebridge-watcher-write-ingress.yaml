@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  namespace: michi
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+  name: forcebridge-bsc-watcher-write-mainnet-ingress
+spec:
+  rules:
+  - host: mainnet-bsc-watcher-write.forcebridge.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: mainnet-bsc-forcebridge-watcher-write-svc
+          servicePort: 80
+

@@ -1,0 +1,54 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: mainnet-forcebridge-watcher-read-svc
+  namespace: michi
+spec:
+  selector:
+    app: mainnet-forcebridge-watcher-read
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mainnet-forcebridge-watcher-read
+  namespace: michi
+spec:
+  selector:
+    matchLabels:
+      app: mainnet-forcebridge-watcher-read
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: mainnet-forcebridge-watcher-read
+        logging: "true"
+    spec:
+      containers:
+        - name: mainnet-forcebridge-watcher-read
+          image: nervos/force-bridge:0.0.14
+          env:
+          - name: FORCE_BRIDGE_KEYSTORE_PASSWORD
+            value: "******"
+          ports:
+          - name: rpc
+            containerPort: 80
+            protocol: "TCP"
+          command:
+          - bash
+          - "-c"
+          - |
+            set -ex
+            forcecli rpc -cfg /data/force_bridge.json
+          volumeMounts:
+          - name: forcebridge-data
+            mountPath: /data/
+            subPath: forcebridgemainnet/watcher-read
+      volumes:
+      - name: forcebridge-data
+        persistentVolumeClaim:
+          claimName: michi-ckb-testnet-pvc
+

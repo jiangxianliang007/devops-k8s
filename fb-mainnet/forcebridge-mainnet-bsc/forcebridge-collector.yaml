@@ -1,11 +1,11 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: mainnet-forcebridge-collector-svc
+  name: mainnet-forcebridge-bsc-collector-svc
   namespace: michi
 spec:
   selector:
-    app: mainnet-forcebridge-collector
+    app: mainnet-forcebridge-bsc-collector
   ports:
     - protocol: "TCP"
       port: 80
@@ -14,27 +14,27 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mainnet-forcebridge-collector
+  name: mainnet-forcebridge-bsc-collector
   namespace: michi
 spec:
   strategy:
     type: Recreate
   selector:
     matchLabels:
-      app: mainnet-forcebridge-collector
+      app: mainnet-forcebridge-bsc-collector
   replicas: 1
   template:
     metadata:
       labels:
-        app: mainnet-forcebridge-collector
+        app: mainnet-forcebridge-bsc-collector
         logging: "true"
     spec:
       containers:
-        - name: mainnet-forcebridge-collector
-          image: nervos/force-bridge:0.0.9
+        - name: mainnet-forcebridge-bsc-collector
+          image: nervos/force-bridge:0.0.17
           env:
           - name: FORCE_BRIDGE_KEYSTORE_PASSWORD
-            value: "*****"
+            value: "******"
           ports:
           - name: rpc
             containerPort: 80
@@ -44,14 +44,15 @@ spec:
           - "-c"
           - |
             set -ex
-            #yarn global add @force-bridge/cli@0.0.9
             forcecli collector -cfg /data/force_bridge.json
           volumeMounts:
-          - name: forcebridge-data
+          - name: forcebridge-bsc-data
             mountPath: /data/
-            subPath: forcebridgemainnet/collector
+            subPath: forcebridgemainnetbsc/collector
+      nodeSelector:
+        forcebridge: "true"
       volumes:
-      - name: forcebridge-data
+      - name: forcebridge-bsc-data
         persistentVolumeClaim:
           claimName: michi-ckb-testnet-pvc
 

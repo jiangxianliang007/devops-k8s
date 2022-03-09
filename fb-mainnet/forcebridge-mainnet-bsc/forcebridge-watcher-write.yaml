@@ -1,11 +1,11 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: mainnet-forcebridge-verifier2-svc
+  name: mainnet-forcebridge-bsc-watcher-write-svc
   namespace: michi
 spec:
   selector:
-    app: mainnet-forcebridge-verifier2
+    app: mainnet-forcebridge-bsc-watcher-write
   ports:
     - protocol: "TCP"
       port: 80
@@ -14,27 +14,27 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mainnet-forcebridge-verifier2
+  name: mainnet-forcebridge-bsc-watcher-write
   namespace: michi
 spec:
   strategy:
     type: Recreate
   selector:
     matchLabels:
-      app: mainnet-forcebridge-verifier2
+      app: mainnet-forcebridge-bsc-watcher-write
   replicas: 1
   template:
     metadata:
       labels:
-        app: mainnet-forcebridge-verifier2
+        app: mainnet-forcebridge-bsc-watcher-write
         logging: "true"
     spec:
       containers:
-        - name: mainnet-forcebridge-verifier2
-          image: nervos/force-bridge:0.0.9
+        - name: mainnet-forcebridge-bsc-watcher-write
+          image: nervos/force-bridge:0.0.17
           env:
           - name: FORCE_BRIDGE_KEYSTORE_PASSWORD
-            value: "*****"
+            value: "******"
           ports:
           - name: rpc
             containerPort: 80
@@ -44,15 +44,15 @@ spec:
           - "-c"
           - |
             set -ex
-            #yarn global add @force-bridge/cli@0.0.9
-            forcecli verifier -cfg /data/force_bridge.json
+            forcecli rpc -cfg /data/force_bridge.json
           volumeMounts:
-          - name: forcebridge-data
+          - name: forcebridge-bsc-data
             mountPath: /data/
-            subPath: forcebridgemainnet/verifier2
+            subPath: forcebridgemainnetbsc/watcher-write
+      nodeSelector:
+        forcebridge: "true"
       volumes:
-      - name: forcebridge-data
+      - name: forcebridge-bsc-data
         persistentVolumeClaim:
           claimName: michi-ckb-testnet-pvc
-
 

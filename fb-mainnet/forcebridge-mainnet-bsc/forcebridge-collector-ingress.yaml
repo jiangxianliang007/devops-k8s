@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  namespace: michi
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+  name: forcebridge-bsc-collector-mainnet-ingress
+spec:
+  rules:
+  - host: mainnet-bsc-collector.forcebridge.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: mainnet-forcebridge-bsc-collector-svc
+          servicePort: 80
+

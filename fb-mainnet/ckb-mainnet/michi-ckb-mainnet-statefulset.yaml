@@ -19,7 +19,7 @@ spec:
         runAsUser: 0
       containers:
       - name: michi-ckb-mainnet
-        image: "nervos/perkins-tent:v0.43.0"
+        image: "nervos/perkins-tent:v0.101.6"
         env:
         - name: CKB_NETWORK
           value: mainnet

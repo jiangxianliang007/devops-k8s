@@ -1,0 +1,53 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: gw-testnet-web3-indexer
+  namespace: gw-testnet
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s.kuboard.cn/name: gw-testnet-web3-indexer
+      logging: 'true'
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        k8s.kuboard.cn/name: gw-testnet-web3-indexer
+        logging: 'true'
+    spec:
+      volumes:
+        - name: gw-testnet-indexer-config
+          configMap:
+            name: gw-testnet-indexer-config
+            defaultMode: 420
+      containers:
+        - name: gw-testnet-web3-indexer
+          image: 'ghcr.io/godwokenrises/godwoken-web3-indexer-prebuilds:v1.9.0-rc2'
+          workingDir: /web3
+          env:
+            - name: RUST_LOG
+              value: 'info,gw_web3_indexer=debug'
+          resources: {}
+          volumeMounts:
+            - name: gw-testnet-indexer-config
+              mountPath: /web3/indexer-config.toml
+              subPath: indexer-config.toml
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        godwoken: testnet
+      securityContext: {}
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600

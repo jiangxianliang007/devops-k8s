@@ -1,0 +1,14 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: public-testnet-ckb-monitor-svc
+  namespace: public-node
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  selector:
+    app: public-testnet-ckb-monitor
+  type: ClusterIP

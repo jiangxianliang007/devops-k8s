@@ -1,0 +1,20 @@
+---
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: gw-testnet-monitor-ingress
+  namespace: gw-testnet
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - host: gw-testnet-fullnode-v1.godwoken.cf
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: gw-testnet-monitor-svc
+                port:
+                  number: 80

@@ -1,0 +1,45 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: gw-testnet-ckb-monitor
+  namespace: gw-testnet
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gw-testnet-ckb-monitor
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: gw-testnet-ckb-monitor
+    spec:
+      containers:
+        - name: gw-testnet-ckb-monitor
+          image: 'jiangxianliang/ckbindexer-exporter:0.2'
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          env:
+            - name: ckb_rpc
+              value: 'http://gw-testnet-ckb-svc:8114'
+            - name: ckb_indexer_rpc
+              value: 'http://gw-testnet-ckb-indexer-svc:8116'
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600

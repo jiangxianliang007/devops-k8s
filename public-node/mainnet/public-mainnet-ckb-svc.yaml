@@ -1,0 +1,18 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: public-mainnet-ckb-svc
+  namespace: public-node
+  labels:
+    app: public-mainnet-ckb-svc
+  annotations: {}
+spec:
+  ports:
+    - name: rpc
+      protocol: TCP
+      port: 8114
+      targetPort: 8114
+  selector:
+    app: public-mainnet-ckb
+  type: ClusterIP

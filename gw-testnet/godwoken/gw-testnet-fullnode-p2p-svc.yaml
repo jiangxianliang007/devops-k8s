@@ -1,0 +1,16 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: godwoken
+  namespace: gw-testnet
+spec:
+  ports:
+    - name: p2p
+      protocol: TCP
+      port: 9999
+      targetPort: 9999
+      nodePort: 30242
+  selector:
+    app: gw-testnet-fullnode
+  type: NodePort

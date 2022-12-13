@@ -1,0 +1,16 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: gw-testnet-svc-readonly
+  namespace: gw-testnet
+spec:
+  ports:
+    - name: gw-rpc
+      protocol: TCP
+      port: 8119
+      targetPort: 8119
+      nodePort: 30250
+  selector:
+    app: gw-testnet-readonly-2
+  type: NodePort

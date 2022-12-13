@@ -1,0 +1,79 @@
+---
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: testnet-redis-v1
+  namespace: gw-testnet
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: testnet-redis-v1
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: testnet-redis-v1
+    spec:
+      volumes:
+        - name: config
+          configMap:
+            name: testnet-redis-config-v1
+            defaultMode: 420
+      containers:
+        - name: testnet-redis-v1
+          image: 'redis:6.2'
+          command:
+            - sh
+            - '-c'
+            - redis-server /usr/local/etc/redis/redis.conf
+          ports:
+            - containerPort: 6379
+              protocol: TCP
+          resources:
+            limits:
+              cpu: '4'
+              memory: 6Gi
+            requests:
+              cpu: '1'
+              memory: 2024Mi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+              subPath: godwoken-testnet-redis-v1
+            - name: config
+              mountPath: /usr/local/etc/redis/redis.conf
+              subPath: redis.conf
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        godwoken: testnet
+      securityContext: {}
+      schedulerName: default-scheduler
+  volumeClaimTemplates:
+    - kind: PersistentVolumeClaim
+      apiVersion: v1
+      metadata:
+        name: data
+        creationTimestamp: null
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 100Gi
+        storageClassName: ebs-sc
+        volumeMode: Filesystem
+      status:
+        phase: Pending
+  serviceName: testnet-redis-v1
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
+  revisionHistoryLimit: 10

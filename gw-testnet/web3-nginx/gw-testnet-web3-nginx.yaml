@@ -1,0 +1,51 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: gw-testnet-web3-nginx
+  namespace: gw-testnet
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: gw-testnet-web3-nginx
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: gw-testnet-web3-nginx
+        logging: 'true'
+    spec:
+      volumes:
+        - name: testnet-godwoken-web3-nginx-conf
+          configMap:
+            name: testnet-godwoken-web3-nginx-conf
+            defaultMode: 420
+      containers:
+        - name: gw-testnet-web3-nginx
+          image: 'jiangxianliang/nginx:1.18.0-0915'
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - name: testnet-godwoken-web3-nginx-conf
+              readOnly: true
+              mountPath: /etc/nginx/conf.d/
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: Always
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        godwoken: testnet
+      securityContext: {}
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600

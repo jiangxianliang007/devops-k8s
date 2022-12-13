@@ -1,0 +1,17 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: gw-testnet-ckb-indexer-svc
+  namespace: gw-testnet
+  labels:
+    app: gw-testnet-ckb-indexer-svc
+spec:
+  ports:
+    - name: rpc
+      protocol: TCP
+      port: 8116
+      targetPort: 8116
+  selector:
+    app: gw-testnet-ckb-indexer
+  type: ClusterIP

@@ -1,0 +1,17 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: testnet-redis-svc-v1
+  namespace: gw-testnet
+  labels:
+    app: testnet-redis-v1
+spec:
+  ports:
+    - name: redis
+      protocol: TCP
+      port: 6379
+      targetPort: 6379
+  selector:
+    app: testnet-redis-v1
+  type: ClusterIP

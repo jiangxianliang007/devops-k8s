@@ -1,0 +1,153 @@
+---
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: gw-testnet-readonly-2
+  namespace: gw-testnet
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gw-testnet-readonly-2
+      logging: 'true'
+      svc: gw-testnet-readonly
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: gw-testnet-readonly-2
+        logging: 'true'
+        svc: gw-testnet-readonly
+    spec:
+      volumes:
+        - name: godwoken-testnet-conf
+          configMap:
+            name: godwoken-testnet-conf-2
+            defaultMode: 420
+        - name: godwoken-testnet-db-conf
+          configMap:
+            name: godwoken-testnet-db-conf-2
+            defaultMode: 420
+      initContainers:
+        - name: setsysctl
+          image: busybox
+          command:
+            - sh
+            - '-c'
+            - |
+              sysctl -w net.core.somaxconn=1024
+              sysctl -w net.ipv4.tcp_tw_reuse=1
+              sysctl -w net.ipv4.tcp_max_tw_buckets=4096
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: Always
+          securityContext:
+            privileged: true
+      containers:
+        - name: gw-testnet-readonly-2
+          image: 'ghcr.io/godwokenrises/godwoken-prebuilds:1.7.1-poly1.5.0'
+          command:
+            - bash
+            - '-c'
+            - |
+              set -ex
+              godwoken run -c /deploy/config.toml
+          ports:
+            - name: rpc
+              containerPort: 8119
+              protocol: TCP
+          env:
+            - name: RUST_BACKTRACE
+              value: '1'
+            - name: RUST_LOG
+              value: 'info,gw_generator=debug'
+            - name: SMOL_THREADS
+              value: '12'
+            - name: BLOCKING_MAX_THREADS
+              value: '16'
+            - name: OTEL_BSP_MAX_EXPORT_BATCH_SIZE
+              value: '25'
+            - name: GODWOKEN_THREADS
+              value: '8'
+          resources:
+            limits:
+              memory: 8Gi
+            requests:
+              memory: 2Gi
+          volumeMounts:
+            - name: godwoken-testnet-conf
+              readOnly: true
+              mountPath: /deploy/config.toml
+              subPath: config.toml
+            - name: godwoken-testnet-db-conf
+              readOnly: true
+              mountPath: /deploy/db.toml
+              subPath: db.toml
+            - name: gw-data2
+              mountPath: /mnt
+              subPath: gw-testnet-db-2
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: 8119
+              scheme: HTTP
+            initialDelaySeconds: 2
+            timeoutSeconds: 1
+            periodSeconds: 60
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - /bin/gw-healthcheck.sh
+            initialDelaySeconds: 6
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 10
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
+        - name: jaeger-agent
+          image: 'jaegertracing/jaeger-agent:1.32'
+          args:
+            - '--agent.tags=node=v1readonly2'
+          env:
+            - name: REPORTER_GRPC_HOST_PORT
+              value: '192.168.62.240:8201'
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        godwoken: testnet
+      securityContext: {}
+      schedulerName: default-scheduler
+  volumeClaimTemplates:
+    - kind: PersistentVolumeClaim
+      apiVersion: v1
+      metadata:
+        name: gw-data2
+        creationTimestamp: null
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 150Gi
+        storageClassName: ebs-sc
+        volumeMode: Filesystem
+      status:
+        phase: Pending
+  serviceName: gw-testnet-readonly-2
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
+  revisionHistoryLimit: 10

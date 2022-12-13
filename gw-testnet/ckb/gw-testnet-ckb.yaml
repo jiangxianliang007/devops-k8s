@@ -1,0 +1,74 @@
+---
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: gw-testnet-ckb
+  namespace: gw-testnet
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gw-testnet-ckb
+      logging: 'true'
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: gw-testnet-ckb
+        logging: 'true'
+    spec:
+      containers:
+        - name: gw-testnet-ckb
+          image: 'nervos/ckb:v0.105.1'
+          command:
+            - bash
+            - '-c'
+            - |
+              set -ex
+              cd /var/lib/ckb
+              ckb init --chain testnet --force
+              ckb migrate --force
+              ckb run
+          ports:
+            - name: rpc
+              containerPort: 8114
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/ckb
+              subPath: gw-testnet-ckb
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        godwoken: testnet
+      securityContext:
+        runAsUser: 0
+      schedulerName: default-scheduler
+  volumeClaimTemplates:
+    - kind: PersistentVolumeClaim
+      apiVersion: v1
+      metadata:
+        name: data
+        creationTimestamp: null
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 100Gi
+        storageClassName: ebs-sc
+        volumeMode: Filesystem
+      status:
+        phase: Pending
+  serviceName: ckb
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
+  revisionHistoryLimit: 10

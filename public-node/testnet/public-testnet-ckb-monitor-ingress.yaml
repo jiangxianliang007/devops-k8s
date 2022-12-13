@@ -1,0 +1,20 @@
+---
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: public-testnet-ckb-monitor-ingress
+  namespace: public-node
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - host: public-testnet-ckb-monitor.nervos.tech
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: public-testnet-ckb-monitor-svc
+                port:
+                  number: 80

@@ -1,0 +1,17 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: public-testnet-ckb-svc
+  namespace: public-node
+  labels:
+    app: public-testnet-ckb-svc
+spec:
+  ports:
+    - name: rpc
+      protocol: TCP
+      port: 8114
+      targetPort: 8114
+  selector:
+    app: public-testnet-ckb
+  type: ClusterIP

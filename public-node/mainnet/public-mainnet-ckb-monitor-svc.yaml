@@ -1,0 +1,15 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: public-mainnet-ckb-monitor-svc
+  namespace: public-node
+  annotations: {}
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  selector:
+    app: public-mainnet-ckb-monitor
+  type: ClusterIP

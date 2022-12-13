@@ -1,0 +1,71 @@
+---
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: gw-testnet-ckb-indexer
+  namespace: gw-testnet
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gw-testnet-ckb-indexer
+      logging: 'true'
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: gw-testnet-ckb-indexer
+        logging: 'true'
+    spec:
+      containers:
+        - name: gw-testnet-ckb-indexer
+          image: 'nervos/ckb-indexer:0.4.2'
+          command:
+            - bash
+            - '-c'
+            - >
+              set -ex
+              ckb-indexer -c http://gw-testnet-ckb-svc:8114 -s /data -l 0.0.0.0:8116
+          ports:
+            - name: rpc
+              containerPort: 8116
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+              subPath: gw-testnet-ckb-indexer
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        godwoken: testnet
+      securityContext:
+        runAsUser: 0
+      schedulerName: default-scheduler
+  volumeClaimTemplates:
+    - kind: PersistentVolumeClaim
+      apiVersion: v1
+      metadata:
+        name: data
+        creationTimestamp: null
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 100Gi
+        storageClassName: ebs-sc
+        volumeMode: Filesystem
+      status:
+        phase: Pending
+  serviceName: ckb-indexer
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
+  revisionHistoryLimit: 10

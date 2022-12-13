@@ -1,0 +1,82 @@
+---
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: gw-testnet-web3-ingress
+  namespace: gw-testnet
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: '1800'
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '1800'
+    nginx.ingress.kubernetes.io/proxy-send-timeout: '1800'
+    nginx.ingress.kubernetes.io/server-snippets: |
+      location /ws {
+       proxy_set_header Upgrade $http_upgrade;
+       proxy_http_version 1.1;
+       proxy_set_header X-Forwarded-Host $http_host;
+       proxy_set_header X-Forwarded-Proto $scheme;
+       proxy_set_header X-Forwarded-For $remote_addr;
+       proxy_set_header Host $host;
+       proxy_set_header Connection "upgrade";
+       proxy_cache_bypass $http_upgrade;
+       }
+spec:
+  rules:
+    - host: v1.testnet.godwoken.io
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: gw-testnet-web3-nginx-svc
+                port:
+                  number: 80
+          - path: /ws
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: gw-testnet-web3-nginx-svc
+                port:
+                  number: 80
+          - path: /rpc
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: gw-testnet-web3-nginx-svc
+                port:
+                  number: 80
+    - host: godwoken-testnet-v1.godwoken.cf
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: gw-testnet-web3-nginx-svc
+                port:
+                  number: 80
+          - path: /ws
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: gw-testnet-web3-nginx-svc
+                port:
+                  number: 80
+    - host: godwoken-testnet-v1.ckbapp.dev
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: gw-testnet-web3-nginx-svc
+                port:
+                  number: 80
+          - path: /ws
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: gw-testnet-web3-nginx-svc
+                port:
+                  number: 80

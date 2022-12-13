@@ -1,0 +1,14 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: gw-testnet-monitor-svc-readonly
+  namespace: gw-testnet
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  selector:
+    app: gw-testnet-monitor-readonly
+  type: ClusterIP

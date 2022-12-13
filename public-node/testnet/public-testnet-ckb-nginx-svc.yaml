@@ -1,0 +1,14 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: public-testnet-ckb-nginx-svc
+  namespace: public-node
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  selector:
+    app: public-testnet-ckb-nginx
+  type: ClusterIP

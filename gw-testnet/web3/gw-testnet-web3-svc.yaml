@@ -1,0 +1,14 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: gw-testnet-web3-svc
+  namespace: gw-testnet
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8024
+  selector:
+    app: gw-testnet-web3
+  type: ClusterIP

@@ -1,0 +1,17 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: testnet-godwoken-redis-exporter
+  namespace: gw-testnet
+  labels:
+    k8s-app: testnet-godwoken-redis-exporter
+spec:
+  ports:
+    - name: http
+      protocol: TCP
+      port: 9121
+      targetPort: http
+  selector:
+    k8s-app: testnet-godwoken-redis-exporter
+  type: ClusterIP

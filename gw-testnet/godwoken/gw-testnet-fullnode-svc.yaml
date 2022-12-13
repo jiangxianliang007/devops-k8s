@@ -1,0 +1,21 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: gw-fullnode
+  namespace: gw-testnet
+spec:
+  ports:
+    - name: gw-rpc
+      protocol: TCP
+      port: 8119
+      targetPort: 8119
+      nodePort: 30239
+    - name: err-receipt-ws
+      protocol: TCP
+      port: 8219
+      targetPort: 8219
+      nodePort: 30218
+  selector:
+    app: gw-testnet-fullnode
+  type: NodePort

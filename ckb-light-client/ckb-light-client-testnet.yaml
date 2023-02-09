@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ckb-light-client-testnet
+  namespace: public-node
+spec:
+  selector:
+    matchLabels:
+      app: ckb-light-client-testnet
+      logging: "true"
+  serviceName: "ckb-light-client"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ckb-light-client-testnet
+        logging: "true"
+    spec:
+      securityContext:
+        runAsUser: 0
+      containers:
+      - name: ckb-light-client-testnet
+        image: "jiangxianliang/ckb-light-client:v0.2.1"
+        args: ["run","--config-file","/config/testnet.toml"]
+        ports:
+          - name: rpc
+            containerPort: 9000
+            protocol: "TCP"
+        volumeMounts:
+          - name: data
+            mountPath: /data/data
+          - name: ckb-light-client-config
+            mountPath: /config/testnet.toml
+            subPath: testnet.toml
+      volumes:
+      - name: ckb-light-client-config
+        configMap:
+          name: ckb-light-client-testnet-config
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: gp2
+      resources:
+        requests:
+          storage: 2Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ckb-light-client-testnet-svc
+  namespace: public-node
+  labels:
+    app: ckb-light-client-testnet-svc
+spec:
+  ports:
+  - name: rpc
+    port: 9000
+    targetPort: 9000
+    protocol: TCP
+  type: ClusterIP
+  selector:
+    app: ckb-light-client-testnet
+

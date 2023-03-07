@@ -38,7 +38,7 @@ spec:
         args: ["--max-connections", "1000", "--character-set-server", "utf8mb4", "--collation-server", "utf8mb4_unicode_ci", "--transaction-isolation", "READ-COMMITTED"]
         env:
         - name: MYSQL_ROOT_PASSWORD
-          value: mMAyPTo3zfBXyumjxlCHlXXnxs
+          value: mMAyPTo3zfBXyumCHlXXnxsjxl
         - name: TZ
           value: "Asia/Shanghai"
         ports:
